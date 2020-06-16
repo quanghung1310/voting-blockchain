@@ -37,26 +37,26 @@ public class WalletController {
         try {
             response.setRequestId(request.getRequestId());
             if (!request.isValidData()) {
-                logger.warn("{}| Validate request add new wallet data: Fail!", logId);
+                logger.warn("{}| Validate request register data: Fail!", logId);
                 response = buildResponse(ErrorConstant.BAD_FORMAT_DATA, request.getRequestId(), null);
                 return new ResponseEntity<>(response.toString(), HttpStatus.OK);
             }
-            logger.info("{}| Valid data request add new wallet success!", logId);
+            logger.info("{}| Valid data request register success!", logId);
 
             RegisterResponse responseBody = walletService.register(logId, request);
             if (StringUtils.isBlank(responseBody.getWalletId())) {
-                logger.warn("{}| Add new wallet fail: {}", logId, responseBody.toString());
+                logger.warn("{}| Register fail: {}", logId, responseBody.toString());
                 response = buildResponse(ErrorConstant.SYSTEM_ERROR, request.getRequestId(), responseBody.toString());
                 return new ResponseEntity<>(response.toString(), HttpStatus.OK);
             }
-            logger.info("{}| Add new wallet success with wallet id: {}", logId, responseBody.getWalletId());
+            logger.info("{}| Register success with wallet id: {}", logId, responseBody.getWalletId());
 
             response = buildResponse(ErrorConstant.SUCCESS, request.getRequestId(), responseBody.toString());
             response.setData(new JsonObject(responseBody.toString()));
             return new ResponseEntity<>(response.toString(), HttpStatus.OK);
 
         } catch (Exception ex) {
-            logger.error("{}| Request add new wallet catch exception: ", logId, ex);
+            logger.error("{}| Request register catch exception: ", logId, ex);
             response = buildResponse(ErrorConstant.BAD_FORMAT_DATA, request.getRequestId(),null);
             ResponseEntity<String> responseEntity = new ResponseEntity<>(
                     response.toString(),
