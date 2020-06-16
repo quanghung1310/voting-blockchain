@@ -23,4 +23,8 @@ public class WalletDTO {
     private int active;
     private Timestamp createDate;
     private Timestamp lastModify;
+    private String firstName;
+    private String lastName;
+    private int sex;
+    private int type;
 }

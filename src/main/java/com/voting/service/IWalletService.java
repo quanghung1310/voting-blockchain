@@ -1,8 +1,12 @@
 package com.voting.service;
 
-import com.voting.dto.WalletDTO;
+import com.voting.model.request.LogInRequest;
+import com.voting.model.request.RegisterRequest;
+import com.voting.model.response.LogInResponse;
 import com.voting.model.response.RegisterResponse;
 
 public interface IWalletService {
-    RegisterResponse addNewWallet(String logId, WalletDTO walletDTO);
+    RegisterResponse register(String logId, RegisterRequest request);
+
+    LogInResponse login(String logId, LogInRequest request);
 }

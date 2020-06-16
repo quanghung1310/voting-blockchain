@@ -4,18 +4,19 @@ import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 
 @Getter
-public class NewWalletReq {
+public class LogInRequest {
     private String requestId;
     private Long requestTime;
-    private String email;
+    private String walletId;
     private String password;
+
 
     public boolean isValidData() {
         try {
-            return StringUtils.isNotBlank(this.requestId)
-                    && StringUtils.isNotBlank(this.email)
-                    && StringUtils.isNotBlank(this.password)
-                    && requestTime >= 0;
+            return !(StringUtils.isBlank(this.requestId)
+                    || StringUtils.isBlank(this.walletId)
+                    || StringUtils.isBlank(this.password)
+                    || requestTime < 0);
         }
         catch (Exception ex) {
             return false;
