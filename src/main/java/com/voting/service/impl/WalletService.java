@@ -1,13 +1,14 @@
 package com.voting.service.impl;
 
-import com.voting.constants.StringConstant;
 import com.voting.dto.WalletDTO;
 import com.voting.mapper.WalletMapper;
+import com.voting.model.request.LogInRequest;
+import com.voting.model.request.RegisterRequest;
+import com.voting.model.response.LogInResponse;
 import com.voting.model.response.RegisterResponse;
+import com.voting.process.WalletProcess;
 import com.voting.repository.IWalletRepository;
 import com.voting.service.IWalletService;
-import com.voting.util.DataUtil;
-import io.vertx.core.json.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,35 +25,41 @@ public class WalletService implements IWalletService {
     IWalletRepository walletRepository;
 
     @Override
-    public RegisterResponse addNewWallet(String logId, WalletDTO walletDTO) {
+    public RegisterResponse register(String logId, RegisterRequest request) {
         try {
-            JsonObject keyPair = DataUtil.generateKeyPair(logId);
-            String privateKey = keyPair.getString(StringConstant.WALLET_PRIMARY);
-            String publicKey = keyPair.getString(StringConstant.WALLET_ADDRESS);
-            logger.info("{}| public key: {}", logId, publicKey);
-            logger.info("{}| private key: {}", logId, privateKey);
-
-            String walletId = DataUtil.generateWalletId(logId);
-
-            logger.info("{}| walletId: {}", logId, walletId);
-            if (privateKey.isEmpty() || publicKey.isEmpty() || walletId.isEmpty()) {
-                logger.warn("{}| Generate ketPair - {}, {}, walletId - {}", logId, privateKey, publicKey, walletId);
-                return null;
-            }
-            walletDTO.setWalletId(walletId);
-            walletDTO.setPrivateKey(privateKey);
-            walletDTO.setPublicKey(publicKey);
-            walletDTO.setActive(1);
-            walletDTO.setCreateDate(new Timestamp(System.currentTimeMillis()));
-            walletDTO.setLastModify(new Timestamp(System.currentTimeMillis()));
+            WalletDTO walletDTO = WalletProcess.register(logId, request.getEmail(), request.getPassword(), request.getFirstName(), request.getLastName(), request.getType(), request.getSex());
 
             WalletDTO wallet = walletRepository.save(walletDTO);
             logger.info("{}| Add new wallet success with id: {}", logId, walletDTO.getId());
-            return WalletMapper.toModel(wallet);
+            return WalletMapper.toModelRegister(wallet);
         } catch (Exception exception) {
-            logger.error("{}| Add new wallet catch exception: ", logId, exception);
+            logger.error("{}| Register catch exception: ", logId, exception);
             return null;
         }
 
+    }
+
+    @Override
+    public LogInResponse login(String logId, LogInRequest request) {
+        try {
+            WalletDTO walletDTO = walletRepository.getAllByWalletId(request.getWalletId());
+            if (walletDTO == null || walletDTO.getActive() == 0) {
+                logger.warn("{}| Wallet not existed!", logId);
+                return null;
+            }
+            logger.info("{}| Wallet is existed with id: {}", logId, walletDTO.getId());
+
+            //Validate password
+            if (!walletDTO.getPassword().matches(request.getPassword())) {
+                logger.warn("{}| Wallet not existed!", logId);
+                return null;
+            }
+            logger.info("{}| Validate password success!", logId);
+
+            return WalletMapper.toModelLogIn(walletDTO);
+        } catch (Exception ex) {
+            logger.error("{}| Login catch exception: ", logId, ex);
+            return null;
+        }
     }
 }

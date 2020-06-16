@@ -13,6 +13,7 @@ public class BaseResponse {
     private String requestId;
     private int resultCode;
     private String message;
+    private long responseTime;
     private JsonObject data;
 
     @Override
