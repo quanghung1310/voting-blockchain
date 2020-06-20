@@ -2,12 +2,15 @@ package com.voting;
 
 import com.google.gson.Gson;
 import com.voting.constants.ErrorConstant;
+import com.voting.model.request.ElectorRequest;
 import com.voting.model.request.NewVoteContent;
 import com.voting.model.request.VoteContentRequest;
 import com.voting.model.request.VotingRequest;
 import com.voting.model.response.BaseResponse;
+import com.voting.model.response.ElectorResponse;
 import com.voting.model.response.VoteContentResponse;
 import com.voting.service.IVoteContentService;
+import com.voting.service.IWalletService;
 import com.voting.util.DataUtil;
 import io.vertx.core.json.JsonObject;
 import org.apache.commons.lang3.StringUtils;
@@ -23,12 +26,14 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-public class ContentController {
-    private final Logger logger = LogManager.getLogger(ContentController.class);
+public class ElectionController {
+    private final Logger logger = LogManager.getLogger(ElectionController.class);
     private static final Gson PARSER = new Gson();
 
     @Autowired
     private IVoteContentService voteContentService;
+    @Autowired
+    private IWalletService walletService;
 
     @PostMapping(value = "/create-vote-content", produces = "application/json;charset=utf8")
     public ResponseEntity<String> createContent(@RequestBody NewVoteContent request) {
@@ -85,6 +90,44 @@ public class ContentController {
             JsonObject responseData = new JsonObject().put("contents", contents);
             if (contents.size() <= 0) {
                 logger.warn("{}| Vote content not found!", logId);
+                response = buildResponse(ErrorConstant.NOT_EXISTED, request.getRequestId(), responseData.toString());
+                logger.info("{}| Response to client: {}", logId, response);
+
+                return new ResponseEntity<>(response.toString(), HttpStatus.OK);
+            }
+
+            response = buildResponse(ErrorConstant.SUCCESS, request.getRequestId(), responseData.toString());
+            logger.info("{}| Response to client: {}", logId, response);
+            return new ResponseEntity<>(response.toString(), HttpStatus.OK);
+
+        } catch (Exception ex) {
+            logger.error("{}| Get content vote catch exception: ", logId, ex);
+            response = buildResponse(ErrorConstant.BAD_FORMAT_DATA, request.getRequestId(),null);
+            ResponseEntity<String> responseEntity = new ResponseEntity<>(
+                    response.toString(),
+                    HttpStatus.OK);
+            return responseEntity;
+        }
+    }
+
+    @PostMapping(value = "/get-elector", produces = "application/json;charset=utf8")
+    public ResponseEntity<String> getElector(@RequestBody ElectorRequest request) {
+        String logId = DataUtil.createRequestId();
+        logger.info("{}| Request data: {}", logId, PARSER.toJson(request));
+        BaseResponse response = new BaseResponse();
+        try {
+            response.setRequestId(request.getRequestId());
+            if (!request.isValidData()) {
+                logger.warn("{}| Validate request get elector: Fail!", logId);
+                response = buildResponse(ErrorConstant.NOT_EXISTED, request.getRequestId(), null);
+                return new ResponseEntity<>(response.toString(), HttpStatus.OK);
+            }
+            logger.info("{}| Valid data request get content vote success!", logId);
+
+            List<ElectorResponse> electors = walletService.getElector(logId, request);
+            JsonObject responseData = new JsonObject().put("electors", electors);
+            if (electors.size() <= 0) {
+                logger.warn("{}| Elector not found!", logId);
                 response = buildResponse(ErrorConstant.NOT_EXISTED, request.getRequestId(), responseData.toString());
                 logger.info("{}| Response to client: {}", logId, response);
 

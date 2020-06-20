@@ -2,6 +2,7 @@ package com.voting.mapper;
 
 import com.voting.constants.StringConstant;
 import com.voting.dto.WalletDTO;
+import com.voting.model.response.ElectorResponse;
 import com.voting.model.response.LogInResponse;
 import com.voting.model.response.RegisterResponse;
 import com.voting.util.DataUtil;
@@ -27,9 +28,25 @@ public final class WalletMapper {
         return LogInResponse.builder()
                 .lastName(walletDTO.getLastName())
                 .firstName(walletDTO.getFirstName())
-                .sex(walletDTO.getSex() == 0 ? "nữ" : "nam")
+                .sex(walletDTO.getSex())
                 .email(walletDTO.getEmail())
                 .type(walletDTO.getType())
+                .build();
+    }
+
+    public static ElectorResponse toModelElector(WalletDTO walletDTO) {
+        if (walletDTO == null) {
+            return null;
+        }
+        return ElectorResponse.builder()
+                .walletId(walletDTO.getWalletId())
+                .walletAddress(walletDTO.getPublicKey())
+                .lastName(walletDTO.getLastName())
+                .firstName(walletDTO.getFirstName())
+                .sex(walletDTO.getSex())
+                .email(walletDTO.getEmail())
+                .type(walletDTO.getType())
+                .active(walletDTO.getActive())
                 .build();
     }
 }

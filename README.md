@@ -4,6 +4,7 @@
 |------- | ---------- | --------- | ------------------- |
 |1.0     | 11-06-2020 | Tran Thi Lang | Init document       |
 |1.1     | 16-06-2020 | Tran Thi Lang | Login API       |
+|1.2     | 20-06-2020 | Tran Thi Lang | Election API       |
 
 # II. API Document
 # Index
@@ -12,6 +13,9 @@
 2. [Log In](#2-log-in)
 3. [Voting](#3-voting)
 4. [Create Content Vote](#4-create-content-vote)
+5. [Get Content Vote](#5-get-content-vote)
+6. [Get Elector](#6-get-elector)
+
 
 # 1. Create New Wallet
 
@@ -27,7 +31,7 @@
   "lastName": "Lang",
   "firstName": "Tran",
   "type": 0,
-  "sex": 0,
+  "sex": 0
 }
 ```
 
@@ -69,7 +73,7 @@
 |message|String|24|x|L1|Mô tả chi tiết kết quả request|
 |responseTime|long||x|L1|Thời gian trả kết quả cho request (tính theo millisecond) Múi giờ: GMT +7|
 |data.walletId|String|32|x|L2|Định danh 1 ví, dùng để đăng nhập|
-|data.walletAddress|String|1024|x|L2|Địa chỉ ví, dùng để nhận coin|
+|data.walletAddress|String|1024|x|L2|Địa chỉ ví, dùng để nhận phiếu|
 |data.walletPrimary|String|1024|x|L2|Định danh private|
 |data.createDate|String||x|L2|Thời gian tạo ví chính là requestTime - dd/MM/yyyy HH:mm:ss (định dạng 24h) Múi giờ: GMT +7|
 
@@ -152,6 +156,7 @@
   "requestId": "0e28ddd4-4017-decf-8ade-972e8c4d0cc6",
   "resultCode": 0,
   "message": "success",
+  "responseTime": 1555472829580,
   "data": {
       "responseTime": 1555472829580,
       "transId": 1555472829580,
@@ -210,8 +215,9 @@
   "requestId": "0e28ddd4-4017-decf-8ade-972e8c4d0cc6",
   "resultCode": 0,
   "message": "success",
+    "responseTime": 1555472829580,
   "data": {
-      "contentId": 1
+    "contentId": "CONTENT_1592323441036"
      }
 }
 ```
@@ -236,6 +242,126 @@
 |resultCode|number|2|x|L1|Kết quả của request|
 |message|String|24|x|L1|Mô tả chi tiết kết quả request|
 |responseTime|long||x|L1|Thời gian trả kết quả cho request (tính theo millisecond) Múi giờ: GMT +7|
-|data.contentId|Number||x|L2|Mã cuộc bầu cử
+|data.contentId|String|45|x|L2|Mã cuộc bầu cử
 
+
+# 5. Get Content Vote
+
+## Raw Data
+**Request:**
+
+```json
+{
+  "requestId": "0e28ddd4-4017-decf-8ade-972e8c4d0cc6",
+  "requestTime": 1555472829549,
+  "startDate": 1655472829549,
+  "endDate": 1855472829549
+}
+```
+
+**Response:**
+```json
+{
+  "requestId": "0e28ddd4-4017-decf-8ade-972e8c4d0cc6",
+  "resultCode": 0,
+  "message": "success",
+  "responseTime": 1555472829580,
+  "data": {
+    "contents": [
+        {   
+            "contentId": "CONTENT_1592323441036",
+            "content": "Bầu lớp trưởng",
+            "description": "Bầu cho vui"
+        }
+    ]
+  }
+}
+```
+
+**Request:**
+
+|Name|Type|Length|Required|Level|Description|
+|----|----|:----:|:------:|:---:|-----------|
+|requestId|String|50|x|L1|Định danh mỗi yêu cầu|
+|requestTime|long||x|L1|Thời gian gọi request (tính theo millisecond) Múi giờ: GMT +7|
+|startDate|String|1024||L1|Thời gian bắt đầu mở bâ ̀u cử - Nếu không truyền lấy thì lấy hết content còn hạn (tính theo millisecond) dd/MM/yyyy HH:mm:ss (định dạng 24h) Múi giờ: GMT +7|
+|endDate|String|||L1|Thời gian kết thúc bầu cử - Nếu không truyền lấy thì lấy hết content còn hạn |
+
+
+**Response:**
+
+|Name|Type|Length|Required|Level|Description|
+|----|----|:----:|:------:|:---:|-----------|
+|requestId|String|50|x|L1|Giống với yêu cầu ban đầu|
+|resultCode|number|2|x|L1|Kết quả của request|
+|message|String|24|x|L1|Mô tả chi tiết kết quả request|
+|responseTime|long||x|L1|Thời gian trả kết quả cho request (tính theo millisecond) Múi giờ: GMT +7|
+|data.contents|JsonArray||x|L2|Danh sách các VOTE_CONTENT|
+|data.contents.contentId|String||x|L3|Mã cuộc bầu cư
+|data.contents.content|String||x|L3|Nội dung cuộc bầu cử|
+|data.contents.description|String||x|L3|Mô tả cuộc bầu cử
+
+# 6. Get Elector
+
+## Raw Data
+**Request:**
+
+```json
+{
+  "requestId": "0e28ddd4-4017-decf-8ade-972e8c4d0cc6",
+  "requestTime": 1555472829549,
+  "contentId": "CONTENT_1592324551319"
+}
+```
+
+**Response:**
+```json
+{
+  "requestId": "0e28ddd4-4017-decf-8ade-972e8c4d0cc6",
+  "resultCode": 0,
+  "message": "success",
+  "responseTime": 1555472829580,
+  "data": {
+    "electors": [
+        {   
+            "walletId": "b900c888-a17b-11ea-bb37-0242ac130002",
+            "walletAddress": "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCMYRJt85L2l9WRTjmVw0oMc3I0dX5jEttJLc/vc4WNGqQF1mpfbPeIyJ4/SokUsrLqu2Zb+6PuXs0HKID8vwL846mX+JqWgPdv//BbPJlC+bxKDjgn0AKi3XLGVEz2j27AVZjBnqxdKoqmK46teZrASoS5tqy1aEJSkfXyhBErVwIDAQAB",
+            "firstName": "Anh",
+            "lastName": "ABC",
+            "email": "anh.abc@gmail.com",
+            "type": 1,
+            "sex": 1,
+            "active": 1 
+        }
+    ]
+  }
+}
+```
+
+**Request:**
+
+|Name|Type|Length|Required|Level|Description|
+|----|----|:----:|:------:|:---:|-----------|
+|requestId|String|50|x|L1|Định danh mỗi yêu cầu|
+|requestTime|long||x|L1|Thời gian gọi request (tính theo millisecond) Múi giờ: GMT +7|
+|contentId|String|100|x|L1|Mã content |
+
+
+**Response:**
+
+|Name|Type|Length|Required|Level|Description|
+|----|----|:----:|:------:|:---:|-----------|
+|requestId|String|50|x|L1|Giống với yêu cầu ban đầu|
+|resultCode|number|2|x|L1|Kết quả của request|
+|message|String|24|x|L1|Mô tả chi tiết kết quả request|
+|responseTime|long||x|L1|Thời gian trả kết quả cho request (tính theo millisecond) Múi giờ: GMT +7|
+|data.electors|JsonArray||x|L2|Danh sách các ứng cử viên|
+|data.electors.walletId|String|1024|x|L3|Định danh 1 ví, dùng để đăng nhập|
+|data.electors.walletAddress|String|1024|x|L3|Địa chỉ ví, dùng để nhận phiếu|
+|data.electors.firstName|String|50|x|L2|Họ|
+|data.electors.lastName|String|20|x|L2|Tên|
+|data.electors.sex|Number|1024|x|L2|Giới tính, 0: nữ, 1: nam|
+|data.electors.email|String|50|x|L2|Địa chỉ email|
+|data.electors.type|Number||x|L2|Loại ví, 0: voter, 1: elector|
+|data.electors.active|Number||x|L2|Ví còn tồn tại không: 0: bị khóa, 1: còn hoạt động|
 

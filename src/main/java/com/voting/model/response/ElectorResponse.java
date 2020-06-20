@@ -1,19 +1,22 @@
 package com.voting.model.response;
 
-
-import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.jackson.DatabindCodec;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-@Setter
 @Getter
-public class BaseResponse {
-    private String requestId;
-    private int resultCode;
-    private String message;
-    private long responseTime;
-    private JsonObject data;
+@Setter
+@Builder
+public class ElectorResponse {
+    private String walletId;
+    private String walletAddress;
+    private String email;
+    private String firstName;
+    private String lastName;
+    private int sex;
+    private int type;
+    private int active;
 
     @Override
     public String toString() {
