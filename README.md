@@ -15,6 +15,7 @@
 4. [Create Content Vote](#4-create-content-vote)
 5. [Get Content Vote](#5-get-content-vote)
 6. [Get Elector](#6-get-elector)
+7. [Get Transactions](#6-get-transactions)
 
 
 # 1. Create New Wallet
@@ -361,3 +362,65 @@
 |data.electors.type|Number||x|L2|Loại ví, 0: voter, 1: elector|
 |data.electors.active|Number||x|L2|Ví còn tồn tại không: 0: bị khóa, 1: còn hoạt động|
 
+# 7. Get Transactions
+## Raw Data
+**Request:**
+
+```json
+{
+  "requestId": "0e28ddd4-4017-decf-8ade-972e8c4d0cc6",
+  "requestTime": 1555472829549,
+   "walletId": "1592638640100_f58b65cb01bd47c49d41a9f5027d01f4"
+}
+```
+
+**Response:**
+```json
+{
+  "requestId": "0e28ddd4-4017-decf-8ade-972e8c4d0cc6",
+  "resultCode": 0,
+  "message": "success",
+  "data": {
+      "responseTime": 1555472829580,
+      "transactions" : [
+        {
+            "walletId": "1592638640100_f58b65cb01bd47c49d41a9f5027d01f4",
+            "transId": "TRANS_1590823490583",
+            "isMine": false,
+            "from": "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAKJ/fapjtDaRMdp5LMd9uspP93sUqP1l3FldWa11HJ0DgRNvyBzwfBuVF/GrZaDhg7ujePsPig79bG+bh9PAQYMCAwEAAQ==",
+            "to": "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAJusswGklhLD4jZJDlLeubU8XXmAntHpp3RW5AJhN7VZ84BDnYyc+5vL7Lv3aenBSJyEo98yAOvR8GGvk5fC/KcCAwEAAQ==",
+            "value": 1,
+            "currency": "vote",
+            "createDate": "2020-05-30 14:24:51"
+        }         
+      ]   
+  }
+}
+```
+
+**Request:**
+
+|Name|Type|Length|Required|Level|Description|
+|----|----|:----:|:------:|:---:|-----------|
+|requestId|String|50|x|L1|Định danh mỗi yêu cầu|
+|requestTime|long||x|L1|Thời gian gọi request (tính theo millisecond) Múi giờ: GMT +7|
+|walletId|String|100||L1|Định danh ví đang thực hiện xem lịch sử giao dịch, Nếu không truyền lấy tất cả giao dịch đã có|
+
+
+**Response:**
+
+|Name|Type|Length|Required|Level|Description|
+|----|----|:----:|:------:|:---:|-----------|
+|requestId|String|50|x|L1|Giống với yêu cầu ban đầu|
+|resultCode|number|2|x|L1|Kết quả của request|
+|message|String|24|x|L1|Mô tả chi tiết kết quả request|
+|data.responseTime|long||x|L2|Thời gian trả kết quả cho request (tính theo millisecond) Múi giờ: GMT +7|
+|data.transactions|ArrayObject||x|L2|Mảng thông tin các transaction sắp xếp theo thời gian giảm dần|
+|data.transactions.walletId|String|100||L3|Định danh ví|
+|data.transactions.isMine|Boolean|||L3|true: Đã được mine, false: Chưa đc mine|
+|data.transactions.transId|String||x|L3|Mã giao dịch|
+|data.transactions.from|String|1024|x|L3|Địa chỉ người gửi|
+|data.transactions.to|String|1024|x|L3|Địa chỉ người nhận|
+|data.transactions.value|Number||x|L3|Gía trị gửi|
+|data.transactions.currency|String||x|L3|Đơn vị coin, mặc định là "mCoin"|
+|data.transactions.createDate|TimeStamp||x|L3|Thời gian thực hiện giao dịch|

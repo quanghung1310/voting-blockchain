@@ -2,20 +2,25 @@ package com.voting.service.impl;
 
 import com.voting.dto.TransactionDTO;
 import com.voting.dto.WalletDTO;
+import com.voting.mapper.TransactionMapper;
+import com.voting.model.request.TransactionRequest;
 import com.voting.model.request.VotingRequest;
+import com.voting.model.response.TransactionResponse;
 import com.voting.model.response.VotingResponse;
 import com.voting.process.TransactionProcess;
 import com.voting.repository.ITransactionRepository;
 import com.voting.repository.IWalletRepository;
 import com.voting.service.ITransactionService;
 import com.voting.util.DataUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transaction;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 
 @Service
 public class TransactionService implements ITransactionService {
@@ -82,6 +87,35 @@ public class TransactionService implements ITransactionService {
             return response;
         } catch (Exception exception) {
             logger.error("{}| Voting catch exception: ", logId, exception);
+            return null;
+        }
+    }
+
+    @Override
+    public List<TransactionResponse> getTransactions(String logId, TransactionRequest request) {
+        List<TransactionResponse> responses = new ArrayList<>();
+        List<TransactionDTO> transactions = new ArrayList<>();
+        try {
+            String walletId = request.getWalletId();
+
+            //Get all transaction of 1 wallet
+            if (StringUtils.isNotBlank(walletId)) {
+                transactions = transactionRepository
+                        .findAllBySenderAndActive(
+                                walletRepository.findByWalletId(walletId).getPublicKey(), 1);
+            } else {
+                transactions = transactionRepository.findAllByActive(1);
+            }
+
+            if(transactions.size() <= 0) {
+                logger.warn("{}| Not found transaction!", logId);
+                return responses;
+            }
+
+            transactions.forEach(transaction -> responses.add(TransactionMapper.toModelTransaction(transaction, walletId)));
+            return responses;
+        } catch (Exception e) {
+            logger.error("{}| Get transactions catch exception: ", logId, e);
             return null;
         }
     }

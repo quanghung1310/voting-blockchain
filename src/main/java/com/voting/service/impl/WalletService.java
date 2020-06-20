@@ -46,7 +46,7 @@ public class WalletService implements IWalletService {
     @Override
     public LogInResponse login(String logId, LogInRequest request) {
         try {
-            WalletDTO walletDTO = walletRepository.getAllByWalletId(request.getWalletId());
+            WalletDTO walletDTO = walletRepository.findByWalletId(request.getWalletId());
             if (walletDTO == null || walletDTO.getActive() == 0) {
                 logger.warn("{}| Wallet not existed!", logId);
                 return null;

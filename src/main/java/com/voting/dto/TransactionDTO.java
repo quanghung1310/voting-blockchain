@@ -21,12 +21,13 @@ public class TransactionDTO {
     private String transId;
     private String sender;
     private String receipt;
-    private long value;
+    private Integer value;
     private String currency;
     private Timestamp createDate;
     private String signature;
     private String description;
     private Timestamp lastModify;
-    private int active;
+    private Integer active;
     private String contentId;
+    private Integer isMine;
 }
