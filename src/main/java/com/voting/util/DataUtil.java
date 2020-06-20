@@ -1,17 +1,19 @@
 package com.voting.util;
 
+import com.voting.constants.ErrorConstant;
 import com.voting.constants.StringConstant;
+import com.voting.model.response.BaseResponse;
 import io.vertx.core.json.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sun.misc.BASE64Encoder;
 
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.PrivateKey;
-import java.security.PublicKey;
+import java.security.*;
+import java.security.spec.EncodedKeySpec;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Base64;
 import java.util.UUID;
 
 public class DataUtil {
@@ -67,6 +69,37 @@ public class DataUtil {
             return f.format(timeInMillisecond);
         } catch (Exception e) {
             return "";
+        }
+    }
+
+    public static BaseResponse buildResponse(int resultCode, String requestId, String responseBody) {
+        BaseResponse baseResponse = new BaseResponse();
+        baseResponse.setResultCode(resultCode);
+        baseResponse.setMessage(ErrorConstant.getMessage(resultCode));
+        baseResponse.setResponseTime(System.currentTimeMillis());
+        baseResponse.setRequestId(requestId);
+        if (responseBody != null) {
+            baseResponse.setData(new JsonObject(responseBody));
+        }
+
+        return baseResponse;
+    }
+
+    public static byte[] applyRSASig(String privateKey, String input) {
+        PrivateKey prvk;
+        try {
+            byte[] privateKeyBytes = Base64.getDecoder().decode(privateKey);
+            byte[] strByte = input.getBytes();
+
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
+            prvk = keyFactory.generatePrivate(privateKeySpec);
+            Signature rsa = Signature.getInstance("SHA1withRSA");
+            rsa.initSign(prvk);
+            rsa.update(strByte);
+            return rsa.sign();
+        } catch (Exception e) {
+            return null;
         }
     }
 }

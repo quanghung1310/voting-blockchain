@@ -37,7 +37,7 @@ public class WalletController {
             response.setRequestId(request.getRequestId());
             if (!request.isValidData()) {
                 logger.warn("{}| Validate request register data: Fail!", logId);
-                response = buildResponse(ErrorConstant.BAD_FORMAT_DATA, request.getRequestId(), null);
+                response = DataUtil.buildResponse(ErrorConstant.BAD_FORMAT_DATA, request.getRequestId(), null);
                 return new ResponseEntity<>(response.toString(), HttpStatus.OK);
             }
             logger.info("{}| Valid data request register success!", logId);
@@ -45,18 +45,18 @@ public class WalletController {
             RegisterResponse responseBody = walletService.register(logId, request);
             if (StringUtils.isBlank(responseBody.getWalletId())) {
                 logger.warn("{}| Register fail: {}", logId, responseBody.toString());
-                response = buildResponse(ErrorConstant.SYSTEM_ERROR, request.getRequestId(), responseBody.toString());
+                response = DataUtil.buildResponse(ErrorConstant.SYSTEM_ERROR, request.getRequestId(), responseBody.toString());
                 return new ResponseEntity<>(response.toString(), HttpStatus.OK);
             }
             logger.info("{}| Register success with wallet id: {}", logId, responseBody.getWalletId());
 
-            response = buildResponse(ErrorConstant.SUCCESS, request.getRequestId(), responseBody.toString());
+            response = DataUtil.buildResponse(ErrorConstant.SUCCESS, request.getRequestId(), responseBody.toString());
             response.setData(new JsonObject(responseBody.toString()));
             return new ResponseEntity<>(response.toString(), HttpStatus.OK);
 
         } catch (Exception ex) {
             logger.error("{}| Request register catch exception: ", logId, ex);
-            response = buildResponse(ErrorConstant.BAD_FORMAT_DATA, request.getRequestId(),null);
+            response = DataUtil.buildResponse(ErrorConstant.BAD_FORMAT_DATA, request.getRequestId(),null);
             ResponseEntity<String> responseEntity = new ResponseEntity<>(
                     response.toString(),
                     HttpStatus.OK);
@@ -73,7 +73,7 @@ public class WalletController {
             response.setRequestId(request.getRequestId());
             if (!request.isValidData()) {
                 logger.warn("{}| Validate request login: Fail!", logId);
-                response = buildResponse(ErrorConstant.BAD_FORMAT_DATA, request.getRequestId(), null);
+                response = DataUtil.buildResponse(ErrorConstant.BAD_FORMAT_DATA, request.getRequestId(), null);
                 return new ResponseEntity<>(response.toString(), HttpStatus.OK);
             }
             logger.info("{}| Valid data request login success!", logId);
@@ -82,16 +82,16 @@ public class WalletController {
 
             if (responseBody == null) {
                 logger.warn("{}| Login fail!", logId);
-                response = buildResponse(ErrorConstant.SYSTEM_ERROR, request.getRequestId(), responseBody.toString());
+                response = DataUtil.buildResponse(ErrorConstant.SYSTEM_ERROR, request.getRequestId(), responseBody.toString());
                 return new ResponseEntity<>(response.toString(), HttpStatus.OK);
             }
 
-            response = buildResponse(ErrorConstant.SUCCESS, request.getRequestId(), responseBody.toString());
+            response = DataUtil.buildResponse(ErrorConstant.SUCCESS, request.getRequestId(), responseBody.toString());
             response.setData(new JsonObject(responseBody.toString()));
             return new ResponseEntity<>(response.toString(), HttpStatus.OK);
         } catch (Exception ex) {
             logger.error("{}| Request login catch exception: ", logId, ex);
-            response = buildResponse(ErrorConstant.BAD_FORMAT_DATA, request.getRequestId(), null);
+            response = DataUtil.buildResponse(ErrorConstant.BAD_FORMAT_DATA, request.getRequestId(), null);
             ResponseEntity<String> responseEntity = new ResponseEntity<>(
                     response.toString(),
                     HttpStatus.OK);
@@ -99,16 +99,5 @@ public class WalletController {
         }
     }
 
-    private static BaseResponse buildResponse(int resultCode, String requestId, String responseBody) {
-        BaseResponse baseResponse = new BaseResponse();
-        baseResponse.setResultCode(resultCode);
-        baseResponse.setMessage(ErrorConstant.getMessage(resultCode));
-        baseResponse.setResponseTime(System.currentTimeMillis());
-        baseResponse.setRequestId(requestId);
-        if (responseBody != null) {
-            baseResponse.setData(new JsonObject(responseBody));
-        }
 
-        return baseResponse;
-    }
 }

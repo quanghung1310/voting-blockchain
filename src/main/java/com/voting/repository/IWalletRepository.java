@@ -18,4 +18,8 @@ public interface IWalletRepository extends CrudRepository<WalletDTO, Long> {
             " left join voting.vote_content v on v.CONTENT_ID = e.CONTENT_ID" +
             " where e.CONTENT_ID = :contentId and START_DATE <= sysdate() and END_DATE >= sysdate() and w.type = 1", nativeQuery = true)
     public List<WalletDTO> findAllByContentId(@Param("contentId") String contentId);
+
+    public WalletDTO findAllByPublicKeyAndActive(String publicKey, int active);
+
+    public WalletDTO findAllByPublicKeyAndActiveAndType(String publicKey, int active, int type);
 }

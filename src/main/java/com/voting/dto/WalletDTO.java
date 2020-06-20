@@ -27,4 +27,5 @@ public class WalletDTO {
     private String lastName;
     private int sex;
     private int type;
+    private int maxPerDate;
 }

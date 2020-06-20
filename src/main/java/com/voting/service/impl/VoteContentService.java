@@ -5,6 +5,7 @@ import com.voting.mapper.VoteContentMapper;
 import com.voting.model.request.NewVoteContent;
 import com.voting.model.request.VoteContentRequest;
 import com.voting.model.response.VoteContentResponse;
+import com.voting.process.ElectionProcess;
 import com.voting.process.TransactionProcess;
 import com.voting.repository.IVoteContentRepository;
 import com.voting.service.IVoteContentService;
@@ -28,7 +29,7 @@ public class VoteContentService implements IVoteContentService {
     @Override
     public String createContentVote(String logId, NewVoteContent request) {
         try {
-            VoteContentDTO voteContent = TransactionProcess.createVoteContent(logId, request.getContent(), request.getStartDate(), request.getEndDate(), request.getDescription());
+            VoteContentDTO voteContent = ElectionProcess.createVoteContent(logId, request.getContent(), request.getStartDate(), request.getEndDate(), request.getDescription());
             voteContentRepository.save(voteContent);
             return voteContent.getContentId();
         } catch (Exception exception) {

@@ -44,7 +44,7 @@ public class ElectionController {
             response.setRequestId(request.getRequestId());
             if (!request.isValidData()) {
                 logger.warn("{}| Validate request create content vote: Fail!", logId);
-                response = buildResponse(ErrorConstant.BAD_FORMAT_DATA, request.getRequestId(), null);
+                response = DataUtil.buildResponse(ErrorConstant.BAD_FORMAT_DATA, request.getRequestId(), null);
                 return new ResponseEntity<>(response.toString(), HttpStatus.OK);
             }
             logger.info("{}| Valid data request create content vote success!", logId);
@@ -53,18 +53,18 @@ public class ElectionController {
             JsonObject responseBody = new JsonObject().put("contentId", contentId);
             if (StringUtils.isBlank(contentId)) {
                 logger.warn("{}| Create content vote fail: {}", logId, responseBody.toString());
-                response = buildResponse(ErrorConstant.SYSTEM_ERROR, request.getRequestId(), responseBody.toString());
+                response = DataUtil.buildResponse(ErrorConstant.SYSTEM_ERROR, request.getRequestId(), responseBody.toString());
                 return new ResponseEntity<>(response.toString(), HttpStatus.OK);
             }
             logger.info("{}| Create content vote success with id: {}", logId, responseBody);
 
-            response = buildResponse(ErrorConstant.SUCCESS, request.getRequestId(), responseBody.toString());
+            response = DataUtil.buildResponse(ErrorConstant.SUCCESS, request.getRequestId(), responseBody.toString());
             response.setData(new JsonObject(responseBody.toString()));
             return new ResponseEntity<>(response.toString(), HttpStatus.OK);
 
         } catch (Exception ex) {
             logger.error("{}| Request create content vote catch exception: ", logId, ex);
-            response = buildResponse(ErrorConstant.BAD_FORMAT_DATA, request.getRequestId(),null);
+            response = DataUtil.buildResponse(ErrorConstant.BAD_FORMAT_DATA, request.getRequestId(),null);
             ResponseEntity<String> responseEntity = new ResponseEntity<>(
                     response.toString(),
                     HttpStatus.OK);
@@ -81,7 +81,7 @@ public class ElectionController {
             response.setRequestId(request.getRequestId());
             if (!request.isValidData()) {
                 logger.warn("{}| Validate request create content vote: Fail!", logId);
-                response = buildResponse(ErrorConstant.NOT_EXISTED, request.getRequestId(), null);
+                response = DataUtil.buildResponse(ErrorConstant.NOT_EXISTED, request.getRequestId(), null);
                 return new ResponseEntity<>(response.toString(), HttpStatus.OK);
             }
             logger.info("{}| Valid data request get content vote success!", logId);
@@ -90,19 +90,19 @@ public class ElectionController {
             JsonObject responseData = new JsonObject().put("contents", contents);
             if (contents.size() <= 0) {
                 logger.warn("{}| Vote content not found!", logId);
-                response = buildResponse(ErrorConstant.NOT_EXISTED, request.getRequestId(), responseData.toString());
+                response = DataUtil.buildResponse(ErrorConstant.NOT_EXISTED, request.getRequestId(), responseData.toString());
                 logger.info("{}| Response to client: {}", logId, response);
 
                 return new ResponseEntity<>(response.toString(), HttpStatus.OK);
             }
 
-            response = buildResponse(ErrorConstant.SUCCESS, request.getRequestId(), responseData.toString());
+            response = DataUtil.buildResponse(ErrorConstant.SUCCESS, request.getRequestId(), responseData.toString());
             logger.info("{}| Response to client: {}", logId, response);
             return new ResponseEntity<>(response.toString(), HttpStatus.OK);
 
         } catch (Exception ex) {
             logger.error("{}| Get content vote catch exception: ", logId, ex);
-            response = buildResponse(ErrorConstant.BAD_FORMAT_DATA, request.getRequestId(),null);
+            response = DataUtil.buildResponse(ErrorConstant.BAD_FORMAT_DATA, request.getRequestId(),null);
             ResponseEntity<String> responseEntity = new ResponseEntity<>(
                     response.toString(),
                     HttpStatus.OK);
@@ -119,7 +119,7 @@ public class ElectionController {
             response.setRequestId(request.getRequestId());
             if (!request.isValidData()) {
                 logger.warn("{}| Validate request get elector: Fail!", logId);
-                response = buildResponse(ErrorConstant.NOT_EXISTED, request.getRequestId(), null);
+                response = DataUtil.buildResponse(ErrorConstant.NOT_EXISTED, request.getRequestId(), null);
                 return new ResponseEntity<>(response.toString(), HttpStatus.OK);
             }
             logger.info("{}| Valid data request get content vote success!", logId);
@@ -128,42 +128,23 @@ public class ElectionController {
             JsonObject responseData = new JsonObject().put("electors", electors);
             if (electors.size() <= 0) {
                 logger.warn("{}| Elector not found!", logId);
-                response = buildResponse(ErrorConstant.NOT_EXISTED, request.getRequestId(), responseData.toString());
+                response = DataUtil.buildResponse(ErrorConstant.NOT_EXISTED, request.getRequestId(), responseData.toString());
                 logger.info("{}| Response to client: {}", logId, response);
 
                 return new ResponseEntity<>(response.toString(), HttpStatus.OK);
             }
 
-            response = buildResponse(ErrorConstant.SUCCESS, request.getRequestId(), responseData.toString());
+            response = DataUtil.buildResponse(ErrorConstant.SUCCESS, request.getRequestId(), responseData.toString());
             logger.info("{}| Response to client: {}", logId, response);
             return new ResponseEntity<>(response.toString(), HttpStatus.OK);
 
         } catch (Exception ex) {
             logger.error("{}| Get content vote catch exception: ", logId, ex);
-            response = buildResponse(ErrorConstant.BAD_FORMAT_DATA, request.getRequestId(),null);
+            response = DataUtil.buildResponse(ErrorConstant.BAD_FORMAT_DATA, request.getRequestId(),null);
             ResponseEntity<String> responseEntity = new ResponseEntity<>(
                     response.toString(),
                     HttpStatus.OK);
             return responseEntity;
         }
-    }
-
-    @PostMapping(value = "/voting", produces = "application/json;charset=utf8")
-    public ResponseEntity<String> voting(@RequestBody VotingRequest request) {
-
-        return null;
-    }
-
-    private static BaseResponse buildResponse(int resultCode, String requestId, String responseBody) {
-        BaseResponse baseResponse = new BaseResponse();
-        baseResponse.setResultCode(resultCode);
-        baseResponse.setMessage(ErrorConstant.getMessage(resultCode));
-        baseResponse.setResponseTime(System.currentTimeMillis());
-        baseResponse.setRequestId(requestId);
-        if (responseBody != null) {
-            baseResponse.setData(new JsonObject(responseBody));
-        }
-
-        return baseResponse;
     }
 }

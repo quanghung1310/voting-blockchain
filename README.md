@@ -145,7 +145,7 @@
   "reciepient": "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCkkHiLrducTVdJSSSsM3mXzBzCOmPbTqsvA01/7j2E9crYQ/ILPaGF77RjWwXBWRBLyVfnVLlI9FPaCcHxJN7pQF38FRHGvFo04Ki5KITsQeeZAz4Hlp6IgD58GP2QWvj23/af0Oz36bR0La+XZzFI/scyrZ4Bq9hpTLqE0ocsvwIDAQAB",
   "value": 5,
   "currency": "vote",
-  "contentId": 2,
+  "contentId": "CONTENT_1592324551319",
   "description": "Send to my boyfriend"
 }
 ```
@@ -158,9 +158,7 @@
   "message": "success",
   "responseTime": 1555472829580,
   "data": {
-      "responseTime": 1555472829580,
-      "transId": 1555472829580,
-      "verify": "0%",
+      "transId": "TRANS_1555472829580",
       "signature": "b6e7302c7a2df244bc76e3592b2e3f7ff39abc2a3b6ea161830acea57a427b5f"
      }
 }
@@ -177,7 +175,7 @@
 |value|Number||x|L2|Số lượng phiếu bầu (mặc định 1 phiếu)|
 |curency|String||x|L2|Định lượng giá trị (mặc định vote)|
 |description|String|100|x|L2|Mô tả giao dịch|
-|contentId|Number||x|L2|Định danh cho 1 cuộc bỏ phiếu|
+|contentId|String|100|x|L2|Định danh cho 1 cuộc bỏ phiếu|
 
 
 **Response:**
@@ -188,10 +186,8 @@
 |resultCode|number|2|x|L1|Kết quả của request|
 |message|String|24|x|L1|Mô tả chi tiết kết quả request|
 |responseTime|long||x|L2|Thời gian trả kết quả cho request (tính theo millisecond) Múi giờ: GMT +7|
-|data.transId|Number||x|L2|Mã giao dịch|
-|data.verify|String|4|x|L2|Số lượng phần trăm ví đã verify thành công|
+|data.transId|Number||x|L2|Mã giao dịch|ông|
 |data.signature|String|512|x|L2|Chữ ký điện tử (privateKey, [sender + reciepient + value])|
-
 
 # 4. Create Content Vote
 
