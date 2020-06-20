@@ -4,7 +4,7 @@ import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 
 @Getter
-public class NewContentVote {
+public class NewVoteContent {
     private String requestId;
     private Long requestTime;
     private String content;

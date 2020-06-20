@@ -2,8 +2,7 @@ package com.voting;
 
 import com.google.gson.Gson;
 import com.voting.constants.ErrorConstant;
-import com.voting.model.request.LogInRequest;
-import com.voting.model.request.RegisterRequest;
+import com.voting.model.request.*;
 import com.voting.model.response.BaseResponse;
 import com.voting.model.response.LogInResponse;
 import com.voting.model.response.RegisterResponse;
