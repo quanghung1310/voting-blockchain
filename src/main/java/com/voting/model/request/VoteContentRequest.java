@@ -6,7 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 @Getter
 public class VoteContentRequest {
     private String requestId;
-    private Long requestTime;
+    private Long requestTime = System.currentTimeMillis();
     private Long startDate;
     private Long endDate;
 

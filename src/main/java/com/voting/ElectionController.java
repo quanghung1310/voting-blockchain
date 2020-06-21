@@ -88,6 +88,12 @@ public class ElectionController {
 
             List<VoteContentResponse> contents = voteContentService.getContent(logId, request);
             JsonObject responseData = new JsonObject().put("contents", contents);
+            if (contents == null) {
+                logger.warn("{}| Get vote content fail!!", logId);
+                response = DataUtil.buildResponse(ErrorConstant.SYSTEM_ERROR, request.getRequestId(), responseData.toString());
+                logger.info("{}| Response to client: {}", logId, response);
+
+            }
             if (contents.size() <= 0) {
                 logger.warn("{}| Vote content not found!", logId);
                 response = DataUtil.buildResponse(ErrorConstant.NOT_EXISTED, request.getRequestId(), responseData.toString());
@@ -122,10 +128,17 @@ public class ElectionController {
                 response = DataUtil.buildResponse(ErrorConstant.NOT_EXISTED, request.getRequestId(), null);
                 return new ResponseEntity<>(response.toString(), HttpStatus.OK);
             }
-            logger.info("{}| Valid data request get content vote success!", logId);
+            logger.info("{}| Valid data request get elector success!", logId);
 
             List<ElectorResponse> electors = walletService.getElector(logId, request);
             JsonObject responseData = new JsonObject().put("electors", electors);
+            if (electors == null) {
+                logger.warn("{}| Get elector fail!!", logId);
+                response = DataUtil.buildResponse(ErrorConstant.SYSTEM_ERROR, request.getRequestId(), responseData.toString());
+                logger.info("{}| Response to client: {}", logId, response);
+
+            }
+
             if (electors.size() <= 0) {
                 logger.warn("{}| Elector not found!", logId);
                 response = DataUtil.buildResponse(ErrorConstant.NOT_EXISTED, request.getRequestId(), responseData.toString());

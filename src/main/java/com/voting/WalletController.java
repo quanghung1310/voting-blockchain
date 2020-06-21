@@ -85,9 +85,14 @@ public class WalletController {
                 response = DataUtil.buildResponse(ErrorConstant.SYSTEM_ERROR, request.getRequestId(), responseBody.toString());
                 return new ResponseEntity<>(response.toString(), HttpStatus.OK);
             }
-
+            if (StringUtils.isBlank(responseBody.getEmail())) {
+                logger.warn("{}| Username/password wrong!", logId);
+                response = DataUtil.buildResponse(ErrorConstant.NOT_EXISTED, request.getRequestId(), responseBody.toString());
+                return new ResponseEntity<>(response.toString(), HttpStatus.OK);
+            }
             response = DataUtil.buildResponse(ErrorConstant.SUCCESS, request.getRequestId(), responseBody.toString());
             response.setData(new JsonObject(responseBody.toString()));
+            logger.info("{}| Response to client: {}", logId, response.toString());
             return new ResponseEntity<>(response.toString(), HttpStatus.OK);
         } catch (Exception ex) {
             logger.error("{}| Request login catch exception: ", logId, ex);

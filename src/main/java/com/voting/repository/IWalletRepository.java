@@ -10,7 +10,7 @@ import java.sql.Timestamp;
 import java.util.List;
 
 public interface IWalletRepository extends CrudRepository<WalletDTO, Long> {
-    WalletDTO findByWalletId(String walletId);
+    WalletDTO findAllByWalletId(String walletId);
 
     @Query(value = "select w.*" +
             " FROM voting.elector e" +

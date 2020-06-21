@@ -102,7 +102,7 @@ public class TransactionService implements ITransactionService {
             if (StringUtils.isNotBlank(walletId)) {
                 transactions = transactionRepository
                         .findAllBySenderAndActive(
-                                walletRepository.findByWalletId(walletId).getPublicKey(), 1);
+                                walletRepository.findAllByWalletId(walletId).getPublicKey(), 1);
             } else {
                 transactions = transactionRepository.findAllByActive(1);
             }

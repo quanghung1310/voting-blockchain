@@ -23,7 +23,7 @@ public final class WalletMapper {
 
     public static LogInResponse toModelLogIn(WalletDTO walletDTO) {
         if (walletDTO == null) {
-            return null;
+            return LogInResponse.builder().build();
         }
         return LogInResponse.builder()
                 .lastName(walletDTO.getLastName())
@@ -36,7 +36,7 @@ public final class WalletMapper {
 
     public static ElectorResponse toModelElector(WalletDTO walletDTO) {
         if (walletDTO == null) {
-            return null;
+            return ElectorResponse.builder().build();
         }
         return ElectorResponse.builder()
                 .walletId(walletDTO.getWalletId())

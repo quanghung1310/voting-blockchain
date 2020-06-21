@@ -6,7 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 @Getter
 public class RegisterRequest {
     private String requestId;
-    private Long requestTime;
+    private Long requestTime = System.currentTimeMillis();
     private String email;
     private String password;
     private String firstName;

@@ -6,7 +6,7 @@ import com.voting.model.response.VoteContentResponse;
 public final class VoteContentMapper {
     public static VoteContentResponse toModelVoteContent(VoteContentDTO dto) {
         if (dto == null) {
-            return null;
+            return VoteContentResponse.builder().build();
         }
         return VoteContentResponse.builder()
                 .id(dto.getId())

@@ -57,7 +57,7 @@
 |Name|Type|Length|Required|Level|Description|
 |----|----|:----:|:------:|:---:|-----------|
 |requestId|String|50|x|L1|Định danh mỗi yêu cầu|
-|requestTime|long||x|L1|Thời gian gọi request (tính theo millisecond) Múi giờ: GMT +7|
+|requestTime|long|||L1|Thời gian gọi request (tính theo millisecond) Múi giờ: GMT +7|
 |data.email|String|50|x|L2|Địa chỉ email|
 |data.password|String|15|x|L2|Mật khẩu đăng nhập|
 |data.lastName|String|45|x|L2|Họ|
@@ -114,7 +114,7 @@
 |Name|Type|Length|Required|Level|Description|
 |----|----|:----:|:------:|:---:|-----------|
 |requestId|String|50|x|L1|Định danh mỗi yêu cầu|
-|requestTime|long||x|L1|Thời gian gọi request (tính theo millisecond) Múi giờ: GMT +7|
+|requestTime|long|||L1|Thời gian gọi request (tính theo millisecond) Múi giờ: GMT +7|
 |data.walletId|String|100|x|L2|Địa chỉ hệ thống trả về sau khi đăng ký thành công|
 |data.password|String|15|x|L2|Mật khẩu đăng nhập|
 
@@ -170,7 +170,7 @@
 |Name|Type|Length|Required|Level|Description|
 |----|----|:----:|:------:|:---:|-----------|
 |requestId|String|50|x|L1|Định danh mỗi yêu cầu|
-|requestTime|long||x|L1|Thời gian gọi request (tính theo millisecond) Múi giờ: GMT +7|
+|requestTime|long|||L1|Thời gian gọi request (tính theo millisecond) Múi giờ: GMT +7|
 |sender|String|1024|x|L2|Địa chỉ người gửi|
 |reciepient|String|1024|x|L2|Địa chỉ người nhận|
 |value|Number||x|L2|Số lượng phiếu bầu (mặc định 1 phiếu)|
@@ -224,7 +224,7 @@
 |Name|Type|Length|Required|Level|Description|
 |----|----|:----:|:------:|:---:|-----------|
 |requestId|String|50|x|L1|Định danh mỗi yêu cầu|
-|requestTime|long||x|L1|Thời gian gọi request (tính theo millisecond) Múi giờ: GMT +7|
+|requestTime|long|||L1|Thời gian gọi request (tính theo millisecond) Múi giờ: GMT +7|
 |content|String|1024|x|L2|Nội dung cuộc bầu cử|
 |startDate|Number|1024|x|L2|Thời gian bắt đầu mở bầu cử (tính theo millisecond) Múi giờ: GMT +7|
 |endDate|Number||x|L2|Thời gian kết thúc bầu cử (tính theo millisecond) Múi giờ: GMT +7)|
@@ -280,7 +280,7 @@
 |Name|Type|Length|Required|Level|Description|
 |----|----|:----:|:------:|:---:|-----------|
 |requestId|String|50|x|L1|Định danh mỗi yêu cầu|
-|requestTime|long||x|L1|Thời gian gọi request (tính theo millisecond) Múi giờ: GMT +7|
+|requestTime|long|||L1|Thời gian gọi request (tính theo millisecond) Múi giờ: GMT +7|
 |startDate|String|1024||L1|Thời gian bắt đầu mở bâ ̀u cử - Nếu không truyền lấy thì lấy hết content còn hạn (tính theo millisecond) dd/MM/yyyy HH:mm:ss (định dạng 24h) Múi giờ: GMT +7|
 |endDate|String|||L1|Thời gian kết thúc bầu cử - Nếu không truyền lấy thì lấy hết content còn hạn |
 
@@ -340,7 +340,7 @@
 |Name|Type|Length|Required|Level|Description|
 |----|----|:----:|:------:|:---:|-----------|
 |requestId|String|50|x|L1|Định danh mỗi yêu cầu|
-|requestTime|long||x|L1|Thời gian gọi request (tính theo millisecond) Múi giờ: GMT +7|
+|requestTime|long|||L1|Thời gian gọi request (tính theo millisecond) Múi giờ: GMT +7|
 |contentId|String|100|x|L1|Mã content |
 
 
@@ -403,7 +403,7 @@
 |Name|Type|Length|Required|Level|Description|
 |----|----|:----:|:------:|:---:|-----------|
 |requestId|String|50|x|L1|Định danh mỗi yêu cầu|
-|requestTime|long||x|L1|Thời gian gọi request (tính theo millisecond) Múi giờ: GMT +7|
+|requestTime|long|||L1|Thời gian gọi request (tính theo millisecond) Múi giờ: GMT +7|
 |walletId|String|100||L1|Định danh ví đang thực hiện xem lịch sử giao dịch, Nếu không truyền lấy tất cả giao dịch đã có|
 
 

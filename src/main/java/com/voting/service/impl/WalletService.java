@@ -45,18 +45,19 @@ public class WalletService implements IWalletService {
 
     @Override
     public LogInResponse login(String logId, LogInRequest request) {
+        LogInResponse logInResponse = LogInResponse.builder().build();
         try {
-            WalletDTO walletDTO = walletRepository.findByWalletId(request.getWalletId());
+            WalletDTO walletDTO = walletRepository.findAllByWalletId(request.getWalletId());
             if (walletDTO == null || walletDTO.getActive() == 0) {
                 logger.warn("{}| Wallet not existed!", logId);
-                return null;
+                return logInResponse;
             }
             logger.info("{}| Wallet is existed with id: {}", logId, walletDTO.getId());
 
             //Validate password
             if (!walletDTO.getPassword().matches(request.getPassword())) {
                 logger.warn("{}| Wallet not existed!", logId);
-                return null;
+                return logInResponse;
             }
             logger.info("{}| Validate password success!", logId);
 
