@@ -4,7 +4,11 @@ import com.voting.constants.ErrorConstant;
 import com.voting.dto.BlockChainDTO;
 import com.voting.dto.BlockDTO;
 import com.voting.dto.TransactionDTO;
+import com.voting.mapper.BlockMapper;
+import com.voting.mapper.TransactionMapper;
+import com.voting.model.request.BlockRequest;
 import com.voting.model.request.MineTransactionRequest;
+import com.voting.model.response.BlockResponse;
 import com.voting.model.response.TransactionResponse;
 import com.voting.process.MineProcess;
 import com.voting.repository.IBlockChainRepository;
@@ -20,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -70,10 +75,10 @@ public class BlockService implements IBlockService {
             }
             //Step 2.2: wallet can mine ? [ walletId not fount, walletId is sender, walletId was mined]
             BlockDTO blockDTO = blockRepository.findAllByMinerIdAndTransId(walletId, transId);
-//            if (blockDTO != null || walletId.equals(transactionDTO.getSender())) {
-//                logger.warn("{}| User can't mine", logId);
-//                return response.put(RESULT_CODE, ErrorConstant.CANT_MINE);
-//            }
+            if (blockDTO != null || walletId.equals(transactionDTO.getSender())) {
+                logger.warn("{}| User can't mine", logId);
+                return response.put(RESULT_CODE, ErrorConstant.CANT_MINE);
+            }
             //Step 2.3: Get prevHash
             List<BlockChainDTO> blockchains = blockChainRepository.findByOrderByIdDesc();
             String prevHash = "";
@@ -131,11 +136,6 @@ public class BlockService implements IBlockService {
             }
 
             //Step 4: Build response
-//            "blockId": "BLOCK_1555472829580",
-//                    "difficulty": 5,
-//                    "nonce": 1245123,
-//                    "prevHash": "0",
-//                    "hash": "2e53daeba42cc615f082373cfe6a62b30ca76ecc4815866ae11d5c0cbc991698"
             JsonObject transObject = new JsonObject()
                     .put("blockId", block.getBlockId())
                     .put("difficulty", block.getDifficulty())
@@ -148,6 +148,33 @@ public class BlockService implements IBlockService {
         } catch (Exception exception) {
             logger.error("{}| Mine catch exception: ", logId, exception);
             return response.put(RESULT_CODE, ErrorConstant.SYSTEM_ERROR);
+        }
+    }
+
+    @Override
+    public List<BlockResponse> getBlocks(String logId, BlockRequest request) {
+        List<BlockResponse> responses = new ArrayList<>();
+        List<BlockDTO> blockDTOS = new ArrayList<>();
+        try {
+            String walletId = request.getWalletId();
+
+            //Get all transaction of 1 wallet
+            if (StringUtils.isNotBlank(walletId)) {
+                blockDTOS = blockRepository.findAllByMinerIdOrderByIdDesc(walletId);
+            } else {
+                blockDTOS = blockRepository.findAll();
+            }
+
+            if(blockDTOS.size() <= 0) {
+                logger.warn("{}| Not found block!", logId);
+                return responses;
+            }
+
+            blockDTOS.forEach(block -> responses.add(BlockMapper.toModelBlock(block, transactionRepository.findFirstByTransId(block.getTransId()))));
+            return responses;
+        } catch (Exception e) {
+            logger.error("{}| Get transactions catch exception: ", logId, e);
+            return null;
         }
     }
 }

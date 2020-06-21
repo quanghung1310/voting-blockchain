@@ -5,7 +5,7 @@
 |1.0     | 11-06-2020 | Tran Thi Lang | Init document       |
 |1.1     | 16-06-2020 | Tran Thi Lang | Login API       |
 |1.2     | 20-06-2020 | Tran Thi Lang | Election API       |
-|1.     | 21-06-2020 | Tran Thi Lang | Mine API       |
+|1.3     | 21-06-2020 | Tran Thi Lang | Mine API       |
 
 
 # II. API Document
@@ -19,6 +19,7 @@
 6. [Get Elector](#6-get-elector)
 7. [Get Transactions](#7-get-transactions)
 8. [Mine Transaction](#8-mine-transaction)
+9. [Get Blocks](#9-get-blocks)
 
 
 # 1. Create New Wallet
@@ -447,8 +448,8 @@
   "requestId": "0e28ddd4-4017-decf-8ade-972e8c4d0cc6",
   "resultCode": 0,
   "message": "success",
+  "responseTime": 1555472829580,
   "data": {
-      "responseTime": 1555472829580,
       "blockId": "BLOCK_1555472829580",
       "difficulty": 5,
       "nonce": 1245123,
@@ -474,9 +475,70 @@
 |requestId|String|50|x|L1|Giống với yêu cầu ban đầu|
 |resultCode|number|2|x|L1|Kết quả của request|
 |message|String|24|x|L1|Mô tả chi tiết kết quả request|
-|data.responseTime|long||x|L2|Thời gian trả kết quả cho request (tính theo millisecond) Múi giờ: GMT +7|
+|responseTime|long||x|L1|Thời gian trả kết quả cho request (tính theo millisecond) Múi giờ: GMT +7|
 |data.difficulty|Number||x|L2|Độ khó của thuật toán|
 |data.nonce|Number||x|L2|Số lần thực hiện hash|
-|data.hash|String|512|x|L2|Kết quả hash, theo thuật toán HSA256([previousHash + currentTime + nonce + transId])|
+|data.hash|String|512|x|L2|Kết quả hash, theo thuật toán HSA256([previousHash + currentTime + nonce + transId +])|
 |data.blockId|String|25|x|L2|Định danh block|
 |data.prevHash|String|64|x|L2|Hash của block trước|
+
+# 9. Get Blocks
+## Raw Data
+**Request:**
+
+```json
+{
+  "requestId": "0e28ddd4-4017-decf-8ade-972e8c4d0cc6",
+  "requestTime": 1555472829549,
+   "walletId": "1592239898676_131dd58bae5d42f2a16dcc82db0ea638"
+}
+```
+
+**Response:**
+```json
+{
+  "requestId": "0e28ddd4-4017-decf-8ade-972e8c4d0cc6",
+  "resultCode": 0,
+  "message": "success",
+  "data": {
+      "responseTime": 1555472829580,
+      "blocks" : [
+        {
+            "id": 5,
+            "blockId": "BLOCK_1590917257748",
+            "transId": "TRANS_1590823490583",
+            "miner": "1590820605329_480114a2f9ad4543ba2c869873ff9993",
+            "value": 1,
+            "currency": "vote",
+            "createDate": "2020-05-30 14:24:51"
+        }         
+      ]   
+  }
+}
+```
+
+**Request:**
+
+|Name|Type|Length|Required|Level|Description|
+|----|----|:----:|:------:|:---:|-----------|
+|requestId|String|50|x|L1|Định danh mỗi yêu cầu|
+|requestTime|long|||L1|Thời gian gọi request (tính theo millisecond) Múi giờ: GMT +7|
+|data.walletId|String|512|x|L2|Định danh ví đang thực hiện xem lịch sử đào coin|
+
+
+**Response:**
+
+|Name|Type|Length|Required|Level|Description|
+|----|----|:----:|:------:|:---:|-----------|
+|requestId|String|50|x|L1|Giống với yêu cầu ban đầu|
+|resultCode|number|2|x|L1|Kết quả của request|
+|message|String|24|x|L1|Mô tả chi tiết kết quả request|
+|responseTime|long||x|L1|Thời gian trả kết quả cho request (tính theo millisecond) Múi giờ: GMT +7|
+|data.blocks|ArrayObject||x|L2|Mảng thông tin các transaction sắp xếp theo thời gian giảm dần|
+|data.blocks.transId|String||x|L3|Mã giao dịch|
+|data.blocks.miner|String|64|x|L3|Định danh ví người đào thành công + sớm nhất|
+|data.blocks.id|Number||x|L3|Định danh 1 block, id tăng dần|
+|data.blocks.blockId|String|64|x|L3|Định danh 1 block|
+|data.blocks.value|Number||x|L3|Gía trị gửi|
+|data.blocks.currency|String||x|L3|Đơn vị transaction, mặc định là "vote"|
+|data.blocks.createDate|TimeStamp||x|L3|Thời gian thực hiện giao dịch|

@@ -2,11 +2,10 @@ package com.voting;
 
 import com.google.gson.Gson;
 import com.voting.constants.ErrorConstant;
+import com.voting.model.request.BlockRequest;
 import com.voting.model.request.MineTransactionRequest;
-import com.voting.model.response.BaseResponse;
-import com.voting.model.response.MineTransactionResponse;
-import com.voting.model.response.TransactionResponse;
-import com.voting.model.response.VoteContentResponse;
+import com.voting.model.request.TransactionRequest;
+import com.voting.model.response.*;
 import com.voting.service.IBlockService;
 import com.voting.util.DataUtil;
 import io.vertx.core.json.JsonObject;
@@ -66,4 +65,47 @@ public class MineTransactionController {
             return responseEntity;
         }
     }
+
+    @PostMapping(value = "/get-blocks", produces = "application/json;charset=utf8")
+    public ResponseEntity<String> getBlock(@RequestBody BlockRequest request) {
+        String logId = DataUtil.createRequestId();
+        logger.info("{}| Request data: {}", logId, PARSER.toJson(request));
+        BaseResponse response = new BaseResponse();
+        try {
+            response.setRequestId(request.getRequestId());
+            if (!request.isValidData()) {
+                logger.warn("{}| Validate request get blocks: Fail!", logId);
+                response = DataUtil.buildResponse(ErrorConstant.BAD_FORMAT_DATA, request.getRequestId(), null);
+                return new ResponseEntity<>(response.toString(), HttpStatus.OK);
+            }
+            logger.info("{}| Valid data request get blocks success!", logId);
+
+            List<BlockResponse> responseData = blockService.getBlocks(logId, request);
+            JsonObject responseBody = new JsonObject().put("blocks", responseData);
+            if (responseData == null) {
+                logger.warn("{}| Get blocks fail: {}", logId, responseBody.toString());
+                response = DataUtil.buildResponse(ErrorConstant.SYSTEM_ERROR, request.getRequestId(), responseBody.toString());
+                return new ResponseEntity<>(response.toString(), HttpStatus.OK);
+            }
+
+            if (responseData.size() <= 0) {
+                logger.warn("{}| Blocks not found!", logId);
+                response = DataUtil.buildResponse(ErrorConstant.NOT_EXISTED, request.getRequestId(), responseBody.toString());
+                return new ResponseEntity<>(response.toString(), HttpStatus.OK);
+            }
+            logger.info("{}| Get blocks success with size: {}", logId, responseBody.toString());
+
+            response = DataUtil.buildResponse(ErrorConstant.SUCCESS, request.getRequestId(), responseBody.toString());
+            response.setData(new JsonObject(responseBody.toString()));
+            return new ResponseEntity<>(response.toString(), HttpStatus.OK);
+        } catch (Exception ex) {
+            logger.error("{}| Request get blocks catch exception: ", logId, ex);
+            response = DataUtil.buildResponse(ErrorConstant.BAD_FORMAT_DATA, request.getRequestId(),null);
+            ResponseEntity<String> responseEntity = new ResponseEntity<>(
+                    response.toString(),
+                    HttpStatus.OK);
+            return responseEntity;
+        }
+    }
+
 }
