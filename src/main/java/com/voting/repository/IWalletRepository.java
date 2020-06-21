@@ -23,5 +23,5 @@ public interface IWalletRepository extends CrudRepository<WalletDTO, Long> {
 
     WalletDTO findAllByPublicKeyAndActiveAndType(String publicKey, int active, int type);
 
-
+    Long countByActiveAndType(int active, int type);
 }

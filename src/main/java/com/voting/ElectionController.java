@@ -81,7 +81,7 @@ public class ElectionController {
             response.setRequestId(request.getRequestId());
             if (!request.isValidData()) {
                 logger.warn("{}| Validate request create content vote: Fail!", logId);
-                response = DataUtil.buildResponse(ErrorConstant.NOT_EXISTED, request.getRequestId(), null);
+                response = DataUtil.buildResponse(ErrorConstant.BAD_FORMAT_DATA, request.getRequestId(), null);
                 return new ResponseEntity<>(response.toString(), HttpStatus.OK);
             }
             logger.info("{}| Valid data request get content vote success!", logId);
