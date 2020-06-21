@@ -1,11 +1,9 @@
 package com.voting.repository;
 
 import com.voting.dto.BlockDTO;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.data.repository.query.Param;
 
-import java.sql.Timestamp;
+import java.util.List;
 
 public interface IBlockRepository extends CrudRepository<BlockDTO, Long> {
     BlockDTO findAllByMinerIdAndTransId(String minerId, String transId);
@@ -13,4 +11,9 @@ public interface IBlockRepository extends CrudRepository<BlockDTO, Long> {
     BlockDTO findByIdIs(Long id);
 
     Long countByTransId(String transId);
+
+    List<BlockDTO> findAllByMinerIdOrderByIdDesc(String minerId);
+
+    List<BlockDTO> findAll();
+
 }
