@@ -16,7 +16,9 @@ public class WalletDTO {
     @GeneratedValue(strategy= GenerationType.AUTO)
     private Long id;
     private String walletId;
+    @Column(length = 2048)
     private String privateKey;
+    @Column(length = 2048)
     private String publicKey;
     private String email;
     private String password;
