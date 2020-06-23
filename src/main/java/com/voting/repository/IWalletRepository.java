@@ -13,10 +13,10 @@ public interface IWalletRepository extends CrudRepository<WalletDTO, Long> {
     WalletDTO findAllByWalletId(String walletId);
 
     @Query(value = "select w.*" +
-            " FROM voting.elector e" +
-            " left join voting.wallet w on w.wallet_id = e.WALLET_ID" +
-            " left join voting.vote_content v on v.CONTENT_ID = e.CONTENT_ID" +
-            " where e.CONTENT_ID = :contentId and START_DATE <= sysdate() and END_DATE >= sysdate() and w.type = 1", nativeQuery = true)
+            " FROM elector e" +
+            " left join wallet w on w.wallet_id = e.WALLET_ID" +
+            " left join vote_content v on v.CONTENT_ID = e.CONTENT_ID" +
+            " where e.CONTENT_ID = :contentId and START_DATE >= sysdate() and END_DATE <= sysdate() and w.type = 1", nativeQuery = true)
     List<WalletDTO> findAllByContentId(@Param("contentId") String contentId);
 
     WalletDTO findAllByPublicKeyAndActive(String publicKey, int active);

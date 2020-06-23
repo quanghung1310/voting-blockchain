@@ -19,7 +19,7 @@ public interface ITransactionRepository extends CrudRepository<TransactionDTO, L
 
     List<TransactionDTO> findAllByActive(int active);
 
-    @Query(value = "UPDATE voting.transaction SET IS_MINE = :status, LAST_MODIFY = :lastModify WHERE TRANS_ID = :transId", nativeQuery = true)
+    @Query(value = "UPDATE transaction SET IS_MINE = :status, LAST_MODIFY = :lastModify WHERE TRANS_ID = :transId", nativeQuery = true)
     void setIsMineByTransId(@Param("status") int status,
                             @Param("lastModify") Timestamp lastModify,
                             @Param("transId") String transId);
