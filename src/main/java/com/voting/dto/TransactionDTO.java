@@ -2,10 +2,7 @@ package com.voting.dto;
 
 import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.sql.Timestamp;
 
 @Getter
@@ -19,12 +16,16 @@ public class TransactionDTO {
     @GeneratedValue(strategy= GenerationType.AUTO)
     private Long id;
     private String transId;
+    @Column(length = 2048)
     private String sender;
+    @Column(length = 2048)
     private String receipt;
     private Integer value;
     private String currency;
     private Timestamp createDate;
+    @Column(length = 2048)
     private String signature;
+    @Column(length = 2048)
     private String description;
     private Timestamp lastModify;
     private Integer active;
