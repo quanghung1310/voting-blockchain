@@ -9,6 +9,7 @@ import com.voting.process.ElectionProcess;
 import com.voting.process.TransactionProcess;
 import com.voting.repository.IVoteContentRepository;
 import com.voting.service.IVoteContentService;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,9 +23,11 @@ import java.util.List;
 public class VoteContentService implements IVoteContentService {
     private static final Logger logger = LogManager.getLogger(VoteContentService.class);
 
-
-    @Autowired
     public IVoteContentRepository voteContentRepository;
+
+    public VoteContentService(IVoteContentRepository voteContentRepository) {
+        this.voteContentRepository = voteContentRepository;
+    }
 
     @Override
     public String createContentVote(String logId, NewVoteContent request) {
@@ -40,17 +43,19 @@ public class VoteContentService implements IVoteContentService {
     }
 
     @Override
-    public List<VoteContentResponse> getContent(String logId, VoteContentRequest request) {
+    public List<VoteContentResponse> getContent(String logId, String startDate, String endDate) {
         List<VoteContentResponse> responseData = new ArrayList<>();
         try {
-            Timestamp startDate = new Timestamp(System.currentTimeMillis());
-            Timestamp endDate   = startDate;
-            if (request.getStartDate() != null && request.getEndDate() != null) {
-                startDate = new Timestamp(request.getStartDate());
-                endDate = new Timestamp(request.getEndDate());
+            //Get all
+            if (StringUtils.isBlank(startDate) && StringUtils.isBlank(endDate)) {
+                logger.info("{}| Get all content", logId);
+                voteContentRepository.findAll()
+                        .forEach(vote -> responseData.add(VoteContentMapper.toModelVoteContent(vote)));
+            } else {
+                //Get by time
+                voteContentRepository.findAllContentByDate(startDate, endDate)
+                        .forEach(vote -> responseData.add(VoteContentMapper.toModelVoteContent(vote)));
             }
-            logger.info("{}| Query db with param: startDate - {}, endDate - {}", logId, startDate, endDate);
-            voteContentRepository.findAllContentByDate(startDate, endDate).forEach(vote -> responseData.add(VoteContentMapper.toModelVoteContent(vote)));
             logger.info("{}| Get data from db with size: {}", logId, responseData.size());
             return responseData;
         } catch (Exception exception) {

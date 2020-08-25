@@ -17,6 +17,7 @@ public class ElectorResponse {
     private int sex;
     private int type;
     private int active;
+    private String contentId;
 
     @Override
     public String toString() {
