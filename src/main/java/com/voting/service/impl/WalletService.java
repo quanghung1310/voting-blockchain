@@ -3,10 +3,8 @@ package com.voting.service.impl;
 import com.voting.dto.WalletDTO;
 import com.voting.mapper.WalletMapper;
 import com.voting.model.request.ElectorRequest;
-import com.voting.model.request.LogInRequest;
 import com.voting.model.request.RegisterRequest;
 import com.voting.model.response.ElectorResponse;
-import com.voting.model.response.LogInResponse;
 import com.voting.model.response.RegisterResponse;
 import com.voting.process.WalletProcess;
 import com.voting.repository.IWalletRepository;
@@ -16,7 +14,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,13 +22,26 @@ public class WalletService implements IWalletService {
 
     private static final Logger logger = LogManager.getLogger(WalletService.class);
 
+    private IWalletRepository walletRepository;
+
     @Autowired
-    IWalletRepository walletRepository;
+    public WalletService(IWalletRepository walletRepository) {
+        this.walletRepository = walletRepository;
+    }
 
     @Override
     public RegisterResponse register(String logId, RegisterRequest request) {
         try {
+            WalletDTO walletExisted = walletRepository.findFirstByEmail(request.getEmail());
+            if (walletExisted == null) {
+                logger.warn("{}| Email - {} was existed!", logId, request.getEmail());
+                return null;
+            }
             WalletDTO walletDTO = WalletProcess.register(logId, request.getEmail(), request.getPassword(), request.getFirstName(), request.getLastName(), request.getType(), request.getSex());
+            if (walletDTO == null) {
+                logger.warn("{}| System generate fail!", logId);
+                return null;
+            }
 
             WalletDTO wallet = walletRepository.save(walletDTO);
             logger.info("{}| Add new wallet success with id: {}", logId, walletDTO.getId());
@@ -41,31 +51,6 @@ public class WalletService implements IWalletService {
             return null;
         }
 
-    }
-
-    @Override
-    public LogInResponse login(String logId, LogInRequest request) {
-        LogInResponse logInResponse = LogInResponse.builder().build();
-        try {
-            WalletDTO walletDTO = walletRepository.findAllByWalletId(request.getWalletId());
-            if (walletDTO == null || walletDTO.getActive() == 0) {
-                logger.warn("{}| Wallet not existed!", logId);
-                return logInResponse;
-            }
-            logger.info("{}| Wallet is existed with id: {}", logId, walletDTO.getId());
-
-            //Validate password
-            if (!walletDTO.getPassword().matches(request.getPassword())) {
-                logger.warn("{}| Wallet not existed!", logId);
-                return logInResponse;
-            }
-            logger.info("{}| Validate password success!", logId);
-
-            return WalletMapper.toModelLogIn(walletDTO);
-        } catch (Exception ex) {
-            logger.error("{}| Login catch exception: ", logId, ex);
-            return null;
-        }
     }
 
     @Override

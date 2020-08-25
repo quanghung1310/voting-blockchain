@@ -1,12 +1,10 @@
 package com.voting.repository;
 
-import com.voting.dto.VoteContentDTO;
 import com.voting.dto.WalletDTO;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
-import java.sql.Timestamp;
 import java.util.List;
 
 public interface IWalletRepository extends CrudRepository<WalletDTO, Long> {
@@ -24,4 +22,7 @@ public interface IWalletRepository extends CrudRepository<WalletDTO, Long> {
     WalletDTO findAllByPublicKeyAndActiveAndType(String publicKey, int active, int type);
 
     Long countByActiveAndType(int active, int type);
+
+    WalletDTO findFirstByEmail(String email);
+
 }
