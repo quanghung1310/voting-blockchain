@@ -52,7 +52,7 @@ public class BlockService implements IBlockService {
         TransactionResponse transactionResponse = TransactionResponse.builder().build();
         try {
             String transId = request.getTransId();
-            String walletId = request.getWalletId();
+            String walletId = "";
             //Step 1: Verify signature
             TransactionDTO transaction = transactionRepository.findByTransId(transId);
             if (transaction == null) {
