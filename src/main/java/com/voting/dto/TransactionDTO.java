@@ -19,7 +19,7 @@ public class TransactionDTO {
     @Column(length = 2048)
     private String sender;
     @Column(length = 2048)
-    private String receipt;
+    private String receiver;
     private Integer value;
     private String currency;
     private Timestamp createDate;
@@ -28,7 +28,7 @@ public class TransactionDTO {
     @Column(length = 2048)
     private String description;
     private Timestamp lastModify;
-    private Integer active;
+    private Integer status;
     private String contentId;
     private Integer isMine;
 }

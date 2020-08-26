@@ -8,7 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 public class VotingRequest {
     private String requestId = DataUtil.createRequestId();
     private Long requestTime = System.currentTimeMillis();
-    private String receiver;
+    private String receiverWallet;
     private Integer value;
     private String description;
     private String contentId;
@@ -18,7 +18,7 @@ public class VotingRequest {
         try {
             return !(StringUtils.isBlank(this.requestId)
                     || this.requestTime < 0
-                    || StringUtils.isBlank(this.receiver)
+                    || StringUtils.isBlank(this.receiverWallet)
                     || this.value <= 0
                     || StringUtils.isBlank(this.contentId));
         }

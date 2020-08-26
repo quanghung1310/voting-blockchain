@@ -25,12 +25,16 @@ public class MineTransactionController {
     private final Logger logger = LogManager.getLogger(MineTransactionController.class);
     private static final Gson PARSER = new Gson();
 
-    @Autowired
     public IBlockService blockService;
+
+    @Autowired
+    public MineTransactionController(IBlockService blockService) {
+        this.blockService = blockService;
+    }
 
     @PostMapping(value = "/mine-transaction", produces = "application/json;charset=utf8")
     public ResponseEntity<String> mineTransaction(@RequestBody MineTransactionRequest request) {
-        String logId = DataUtil.createRequestId();
+        String logId = request.getRequestId();
         logger.info("{}| Request data: {}", logId, PARSER.toJson(request));
         BaseResponse response = new BaseResponse();
         try {
@@ -38,7 +42,7 @@ public class MineTransactionController {
             if (!request.isValidData()) {
                 logger.warn("{}| Validate request mine transaction: Fail!", logId);
                 response = DataUtil.buildResponse(ErrorConstant.BAD_FORMAT_DATA, request.getRequestId(), null);
-                return new ResponseEntity<>(response.toString(), HttpStatus.OK);
+                return new ResponseEntity<>(response.toString(), HttpStatus.BAD_REQUEST);
             }
             logger.info("{}| Valid data request mine transaction success!", logId);
 
@@ -49,7 +53,7 @@ public class MineTransactionController {
                 logger.warn("{}| Mine transaction fail with error - {}", logId, resultCode);
                 response = DataUtil.buildResponse(resultCode, request.getRequestId(), transactionResponse.toString());
                 logger.info("{}| Response to client: {}", logId, response);
-                return new ResponseEntity<>(response.toString(), HttpStatus.OK);
+                return new ResponseEntity<>(response.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
             }
 
             response = DataUtil.buildResponse(resultCode, request.getRequestId(), transactionResponse.toString());
@@ -59,10 +63,9 @@ public class MineTransactionController {
         } catch (Exception ex) {
             logger.error("{}| Mine transaction catch exception: ", logId, ex);
             response = DataUtil.buildResponse(ErrorConstant.BAD_FORMAT_DATA, request.getRequestId(),null);
-            ResponseEntity<String> responseEntity = new ResponseEntity<>(
+            return new ResponseEntity<>(
                     response.toString(),
                     HttpStatus.OK);
-            return responseEntity;
         }
     }
 
@@ -100,10 +103,9 @@ public class MineTransactionController {
         } catch (Exception ex) {
             logger.error("{}| Request get blocks catch exception: ", logId, ex);
             response = DataUtil.buildResponse(ErrorConstant.BAD_FORMAT_DATA, request.getRequestId(),null);
-            ResponseEntity<String> responseEntity = new ResponseEntity<>(
+            return new ResponseEntity<>(
                     response.toString(),
                     HttpStatus.OK);
-            return responseEntity;
         }
     }
 

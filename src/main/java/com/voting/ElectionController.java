@@ -6,8 +6,6 @@ import com.voting.dto.ElectorDTO;
 import com.voting.dto.WalletDTO;
 import com.voting.model.request.ElectorRequest;
 import com.voting.model.request.NewVoteContent;
-import com.voting.model.request.VoteContentRequest;
-import com.voting.model.request.VotingRequest;
 import com.voting.model.response.BaseResponse;
 import com.voting.model.response.ElectorResponse;
 import com.voting.model.response.VoteContentResponse;
@@ -32,10 +30,16 @@ public class ElectionController {
     private final Logger logger = LogManager.getLogger(ElectionController.class);
     private static final Gson PARSER = new Gson();
 
-    @Autowired
     private IVoteContentService voteContentService;
-    @Autowired
+
     private IWalletService walletService;
+
+    @Autowired
+    public ElectionController(IVoteContentService voteContentService
+            , IWalletService walletService) {
+        this.voteContentService = voteContentService;
+        this.walletService = walletService;
+    }
 
     @PostMapping(value = "/create-vote-content", produces = "application/json;charset=utf8")
     public ResponseEntity<String> createContent(@RequestBody NewVoteContent request) {
@@ -203,7 +207,6 @@ public class ElectionController {
     }
 
     private WalletDTO getWallet(Object principal) {
-//        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return walletService.findByEmail(((UserDetails) principal).getUsername());
     }
 

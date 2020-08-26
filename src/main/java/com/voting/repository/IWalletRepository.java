@@ -17,7 +17,6 @@ public interface IWalletRepository extends CrudRepository<WalletDTO, Long> {
             " where e.CONTENT_ID = :contentId and START_DATE <= current_date AND END_DATE >= current_date and w.type = 1", nativeQuery = true)
     List<WalletDTO> findAllByContentId(@Param("contentId") String contentId);
 
-    WalletDTO findAllByPublicKeyAndActive(String publicKey, int active);
 
     WalletDTO findAllByPublicKeyAndActiveAndType(String publicKey, int active, int type);
 
