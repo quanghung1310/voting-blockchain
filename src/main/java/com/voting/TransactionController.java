@@ -32,11 +32,11 @@ public class TransactionController {
 
     @PostMapping(value = "/voting", produces = "application/json;charset=utf8")
     public ResponseEntity<String> voting(@RequestBody VotingRequest request) {
-        String logId = DataUtil.createRequestId();
+        String logId = request.getRequestId();
         logger.info("{}| Request data: {}", logId, PARSER.toJson(request));
         BaseResponse response = new BaseResponse();
         try {
-            response.setRequestId(request.getRequestId());
+            response.setRequestId(logId);
             if (!request.isValidData()) {
                 logger.warn("{}| Validate request voting: Fail!", logId);
                 response = DataUtil.buildResponse(ErrorConstant.BAD_FORMAT_DATA, request.getRequestId(), null);
@@ -54,15 +54,13 @@ public class TransactionController {
             logger.info("{}| Voting success with trans id: {}", logId, responseBody.getTransId());
 
             response = DataUtil.buildResponse(ErrorConstant.SUCCESS, request.getRequestId(), responseBody.toString());
-            response.setData(new JsonObject(responseBody.toString()));
             return new ResponseEntity<>(response.toString(), HttpStatus.OK);
         } catch (Exception ex) {
             logger.error("{}| Request voting catch exception: ", logId, ex);
             response = DataUtil.buildResponse(ErrorConstant.BAD_FORMAT_DATA, request.getRequestId(),null);
-            ResponseEntity<String> responseEntity = new ResponseEntity<>(
+            return new ResponseEntity<>(
                     response.toString(),
                     HttpStatus.OK);
-            return responseEntity;
         }
     }
 
@@ -96,15 +94,13 @@ public class TransactionController {
             logger.info("{}| Get transactions success with size: {}", logId, responseData.size());
 
             response = DataUtil.buildResponse(ErrorConstant.SUCCESS, request.getRequestId(), responseBody.toString());
-            response.setData(new JsonObject(responseBody.toString()));
             return new ResponseEntity<>(response.toString(), HttpStatus.OK);
         } catch (Exception ex) {
             logger.error("{}| Request Get transactions catch exception: ", logId, ex);
             response = DataUtil.buildResponse(ErrorConstant.BAD_FORMAT_DATA, request.getRequestId(),null);
-            ResponseEntity<String> responseEntity = new ResponseEntity<>(
+            return new ResponseEntity<>(
                     response.toString(),
                     HttpStatus.OK);
-            return responseEntity;
         }
     }
 }

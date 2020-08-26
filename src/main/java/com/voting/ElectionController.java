@@ -51,17 +51,17 @@ public class ElectionController {
             }
             logger.info("{}| Valid data request create content vote success!", logId);
 
-            String contentId = voteContentService.createContentVote(logId, request);
-            JsonObject responseBody = new JsonObject().put("contentId", contentId);
-            if (StringUtils.isBlank(contentId)) {
-                logger.warn("{}| Create content vote fail: {}", logId, responseBody.toString());
-                response = DataUtil.buildResponse(ErrorConstant.SYSTEM_ERROR, request.getRequestId(), responseBody.toString());
+            WalletDTO walletDTO = getWallet(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+
+            VoteContentResponse contentVote = voteContentService.createContentVote(logId, request, walletDTO.getWalletId());
+            if (contentVote == null) {
+                logger.warn("{}| Create content vote fail!", logId);
+                response = DataUtil.buildResponse(ErrorConstant.SYSTEM_ERROR, request.getRequestId(), null);
                 return new ResponseEntity<>(response.toString(), HttpStatus.OK);
             }
-            logger.info("{}| Create content vote success with id: {}", logId, responseBody);
+            logger.info("{}| Response to client: {}", logId, contentVote.toString());
 
-            response = DataUtil.buildResponse(ErrorConstant.SUCCESS, request.getRequestId(), responseBody.toString());
-            response.setData(new JsonObject(responseBody.toString()));
+            response = DataUtil.buildResponse(ErrorConstant.SUCCESS, request.getRequestId(), contentVote.toString());
             return new ResponseEntity<>(response.toString(), HttpStatus.OK);
 
         } catch (Exception ex) {
@@ -81,12 +81,6 @@ public class ElectionController {
         BaseResponse response = new BaseResponse();
         try {
             response.setRequestId(logId);
-//            if (!request.isValidData()) {
-//                logger.warn("{}| Validate request create content vote: Fail!", logId);
-//                response = DataUtil.buildResponse(ErrorConstant.BAD_FORMAT_DATA, request.getRequestId(), null);
-//                return new ResponseEntity<>(response.toString(), HttpStatus.OK);
-//            }
-//            logger.info("{}| Valid data request get content vote success!", logId);
 
             List<VoteContentResponse> contents = voteContentService.getContent(logId, startDate, endDate);
             JsonObject responseData = new JsonObject().put("contents", contents);
@@ -122,16 +116,8 @@ public class ElectionController {
     public ResponseEntity<String> getElector(@PathVariable(required = false) String contentId) {
         String logId = DataUtil.createRequestId();
         logger.info("{}| Request data: contentId - {}", logId, contentId);
-        BaseResponse response = new BaseResponse();
+        BaseResponse response;
         try {
-//            response.setRequestId(request.getRequestId());
-//            if (!request.isValidData()) {
-//                logger.warn("{}| Validate request get elector: Fail!", logId);
-//                response = DataUtil.buildResponse(ErrorConstant.NOT_EXISTED, request.getRequestId(), null);
-//                return new ResponseEntity<>(response.toString(), HttpStatus.OK);
-//            }
-//            logger.info("{}| Valid data request get elector success!", logId);
-
             List<ElectorResponse> electors = walletService.getElector(logId, contentId);
             JsonObject responseData = new JsonObject().put("electors", electors);
             if (electors == null) {
@@ -177,8 +163,7 @@ public class ElectionController {
             }
             logger.info("{}| Valid data request register elector success!", logId);
 
-            Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            WalletDTO walletDTO = walletService.findByEmail(((UserDetails) principal).getUsername());
+            WalletDTO walletDTO = getWallet(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
 
             String walletId = request.getWalletId();
             if (StringUtils.isBlank(walletId)) {
@@ -215,6 +200,11 @@ public class ElectionController {
                     response.toString(),
                     HttpStatus.OK);
         }
+    }
+
+    private WalletDTO getWallet(Object principal) {
+//        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return walletService.findByEmail(((UserDetails) principal).getUsername());
     }
 
 }

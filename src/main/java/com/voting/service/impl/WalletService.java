@@ -71,17 +71,23 @@ public class WalletService implements IWalletService {
            List<WalletDTO> wallets;
            if (StringUtils.isBlank(contentId)) {
                wallets = walletRepository.findAllElector();
+               logger.info("{}| Found all elector success with size: {}", logId, wallets.size());
+               List<ElectorDTO> electorDTOS = (List<ElectorDTO>) electorRepository.findAll();
+               if(electorDTOS.size() > 0) {
+                   for (ElectorDTO electorDTO : electorDTOS) {
+                       WalletDTO walletDTO = walletRepository.findFirstByWalletIdAndActive(electorDTO.getWalletId(), 1);
+                       response.add(WalletMapper.toModelElector(walletDTO, electorDTO.getContentId()));
+                   }
+               }
            } else {
                wallets = walletRepository.findAllByContentId(contentId);
+               logger.info("{}| Found elector by content - {} success with size: {}", logId, contentId, wallets.size());
+               wallets.forEach(wallet -> response.add(WalletMapper.toModelElector(wallet, contentId)));
            }
 
            if (wallets.size() <= 0) {
                logger.warn("{}| Data not found!", logId);
-               return response;
            }
-
-            logger.info("{}| Found elector success with size: {}", logId, wallets.size());
-            wallets.forEach(wallet -> response.add(WalletMapper.toModelElector(wallet, contentId)));
            return response;
         } catch (Exception ex) {
             logger.error("{}| Get elector catch exception: ", logId, ex);

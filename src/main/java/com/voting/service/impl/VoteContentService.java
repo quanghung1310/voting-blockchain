@@ -30,11 +30,17 @@ public class VoteContentService implements IVoteContentService {
     }
 
     @Override
-    public String createContentVote(String logId, NewVoteContent request) {
+    public VoteContentResponse createContentVote(String logId, NewVoteContent request, String walletId) {
         try {
-            VoteContentDTO voteContent = ElectionProcess.createVoteContent(logId, request.getContent(), request.getStartDate(), request.getEndDate(), request.getDescription());
-            voteContentRepository.save(voteContent);
-            return voteContent.getContentId();
+            Timestamp startDate = Timestamp.valueOf(request.getStartDate());
+            Timestamp endDate = Timestamp.valueOf(request.getEndDate());
+            if (startDate.after(endDate)) {
+                logger.error("{}| Start date - {} < End date - {}", logId, startDate, endDate);
+                return null;
+            }
+            VoteContentDTO voteContent = ElectionProcess.createVoteContent(logId, request.getContent(), startDate, endDate, request.getDescription(), walletId);
+            voteContent = voteContentRepository.save(voteContent);
+            return VoteContentMapper.toModelVoteContent(voteContent);
         } catch (Exception exception) {
             logger.error("{}| Create content vote catch exception: ", logId, exception);
             return null;

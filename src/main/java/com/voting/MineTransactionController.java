@@ -96,7 +96,6 @@ public class MineTransactionController {
             logger.info("{}| Get blocks success with size: {}", logId, responseBody.toString());
 
             response = DataUtil.buildResponse(ErrorConstant.SUCCESS, request.getRequestId(), responseBody.toString());
-            response.setData(new JsonObject(responseBody.toString()));
             return new ResponseEntity<>(response.toString(), HttpStatus.OK);
         } catch (Exception ex) {
             logger.error("{}| Request get blocks catch exception: ", logId, ex);

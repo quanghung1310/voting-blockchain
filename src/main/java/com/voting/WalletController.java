@@ -78,6 +78,7 @@ public class WalletController {
             msg.setTo(request.getEmail());
             msg.setSubject("Your Account VOTING-SYSTEM");
             String body = "Hello " + request.getFirstName() + " " + request.getLastName();
+            body += ",\nWallet Id: " + responseBody.getWalletId();
             body += ",\nWallet Address: " + responseBody.getWalletAddress();
             body += "\nWallet Primary: " + responseBody.getWalletPrimary();
             body += "\nCreate date: " + DataUtil.convertTimeWithFormat(response.getResponseTime(), StringConstant.FORMAT_ddMMyyyyTHHmmss);
@@ -87,7 +88,6 @@ public class WalletController {
             javaMailSender.send(msg);
 
             response = DataUtil.buildResponse(ErrorConstant.SUCCESS, request.getRequestId(), responseBody.toString());
-            response.setData(new JsonObject(responseBody.toString()));
             return new ResponseEntity<>(response.toString(), HttpStatus.OK);
 
         } catch (Exception ex) {

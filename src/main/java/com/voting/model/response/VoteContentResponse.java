@@ -9,10 +9,12 @@ import lombok.Setter;
 @Setter
 @Builder
 public class VoteContentResponse {
-    private long id;
     private String contentId;
     private String content;
     private String description;
+    private String startDate;
+    private String endDate;
+    private String creator;
 
     @Override
     public String toString() {

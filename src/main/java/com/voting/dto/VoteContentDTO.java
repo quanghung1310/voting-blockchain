@@ -24,4 +24,5 @@ public class VoteContentDTO {
     private Timestamp endDate;
     private String description;
     private String contentId;
+    private String walletId;
 }
