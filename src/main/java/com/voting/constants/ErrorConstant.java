@@ -30,6 +30,7 @@ public class ErrorConstant {
         errorMap.put(REQUEST_ID_EXISTED, "RequestId đã tồn tại. Vui lòng tạo requestId mới");
         errorMap.put(CANT_MINE, "Người dùng không thể mining");
         errorMap.put(TIME_EXPIRED, "Chữ ký không hợp lệ");
+        errorMap.put(NOT_EXISTED, "Không tìm thấy dữ liệu. Vui lòng thử lại");
     }
 
     public static String getMessage(int errorCode) {

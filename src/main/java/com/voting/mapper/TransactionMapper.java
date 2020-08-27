@@ -4,7 +4,7 @@ import com.voting.dto.TransactionDTO;
 import com.voting.model.response.TransactionResponse;
 
 public final class TransactionMapper {
-    public static TransactionResponse toModelTransaction(TransactionDTO dto, String walletId) {
+    public static TransactionResponse toModelTransaction(TransactionDTO dto) {
         if (dto == null) {
             return null;
         }
@@ -13,11 +13,13 @@ public final class TransactionMapper {
                 .createDate(dto.getCreateDate())
                 .currency(dto.getCurrency())
                 .from(dto.getSender())
-                .isMine(dto.getIsMine() == 1)
-                .to(dto.getReceipt())
+                .isMine(dto.getIsMine() != null && dto.getIsMine() > 0)
+                .to(dto.getReceiver())
                 .transId(dto.getTransId())
                 .value(dto.getValue())
-                .walletId(walletId)
+                .contentId(dto.getContentId())
+                .signature(dto.getSignature())
+                .description(dto.getDescription())
                 .build();
     }
 }

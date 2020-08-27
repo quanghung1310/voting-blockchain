@@ -34,17 +34,25 @@ public class BlockService implements IBlockService {
     private final String RESULT_CODE    = "resultCode";
     private final String TRANS_RESPONSE = "transactionResponse";
     private final int DIFFICULTY        = 5;
-    @Autowired
+
     public ITransactionRepository transactionRepository;
 
-    @Autowired
     public IBlockRepository blockRepository;
 
-    @Autowired
     public IBlockChainRepository blockChainRepository;
 
-    @Autowired
     public IWalletRepository walletRepository;
+
+    @Autowired
+    public BlockService(ITransactionRepository transactionRepository
+            , IBlockRepository blockRepository
+            , IBlockChainRepository blockChainRepository
+            , IWalletRepository walletRepository) {
+        this.transactionRepository = transactionRepository;
+        this.blockRepository = blockRepository;
+        this.blockChainRepository = blockChainRepository;
+        this.walletRepository = walletRepository;
+    }
 
     @Override
     public JsonObject mineTransaction(String logId, MineTransactionRequest request) {
@@ -52,7 +60,7 @@ public class BlockService implements IBlockService {
         TransactionResponse transactionResponse = TransactionResponse.builder().build();
         try {
             String transId = request.getTransId();
-            String walletId = request.getWalletId();
+            String walletId = "";
             //Step 1: Verify signature
             TransactionDTO transaction = transactionRepository.findByTransId(transId);
             if (transaction == null) {

@@ -12,7 +12,7 @@ public class MineProcess {
     private static final Logger logger = LogManager.getLogger(MineProcess.class);
 
     public static Boolean verifySignature(String logId, TransactionDTO transaction) {
-        String data = transaction.getSender() + transaction.getReceipt() + transaction.getValue();
+        String data = transaction.getSender() + transaction.getReceiver() + transaction.getValue();
         //Verifies the data we signed hasnt been tampered with
         boolean isVerify =  DataUtil.verifySignatureBase64(transaction.getSignature(), data, transaction.getSender());
         if(!isVerify) {

@@ -2,23 +2,24 @@ package com.voting;
 
 import com.google.gson.Gson;
 import com.voting.constants.ErrorConstant;
+import com.voting.dto.WalletDTO;
 import com.voting.model.request.TransactionRequest;
 import com.voting.model.request.VotingRequest;
 import com.voting.model.response.BaseResponse;
 import com.voting.model.response.TransactionResponse;
 import com.voting.model.response.VotingResponse;
 import com.voting.service.ITransactionService;
+import com.voting.service.IWalletService;
 import com.voting.util.DataUtil;
 import io.vertx.core.json.JsonObject;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -27,84 +28,105 @@ public class TransactionController {
     private final Logger logger = LogManager.getLogger(TransactionController.class);
     private static final Gson PARSER = new Gson();
 
-    @Autowired
     public ITransactionService transactionService;
+    private IWalletService walletService;
+
+    public TransactionController(ITransactionService transactionService
+            , IWalletService walletService) {
+        this.transactionService = transactionService;
+        this.walletService = walletService;
+    }
 
     @PostMapping(value = "/voting", produces = "application/json;charset=utf8")
     public ResponseEntity<String> voting(@RequestBody VotingRequest request) {
-        String logId = DataUtil.createRequestId();
+        String logId = request.getRequestId();
         logger.info("{}| Request data: {}", logId, PARSER.toJson(request));
         BaseResponse response = new BaseResponse();
         try {
-            response.setRequestId(request.getRequestId());
+            response.setRequestId(logId);
             if (!request.isValidData()) {
                 logger.warn("{}| Validate request voting: Fail!", logId);
                 response = DataUtil.buildResponse(ErrorConstant.BAD_FORMAT_DATA, request.getRequestId(), null);
-                return new ResponseEntity<>(response.toString(), HttpStatus.OK);
+                return new ResponseEntity<>(response.toString(), HttpStatus.BAD_REQUEST);
             }
             logger.info("{}| Valid data request voting success!", logId);
 
-            VotingResponse responseBody = transactionService.voting(logId, request);
+            WalletDTO walletDTO = getWallet(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+
+            if (request.getReceiverWallet().equals(walletDTO.getWalletId())) {
+                logger.warn("{}| Sender - {} can't voting!", logId, walletDTO.getWalletId());
+                response = DataUtil.buildResponse(ErrorConstant.BAD_FORMAT_DATA, request.getRequestId(), null);
+                return new ResponseEntity<>(response.toString(), HttpStatus.BAD_REQUEST);
+            }
+
+            VotingResponse responseBody = transactionService.voting(logId, request, walletDTO);
 
             if (StringUtils.isBlank(responseBody.getTransId())) {
                 logger.warn("{}| Voting fail: {}", logId, responseBody.toString());
                 response = DataUtil.buildResponse(ErrorConstant.SYSTEM_ERROR, request.getRequestId(), responseBody.toString());
-                return new ResponseEntity<>(response.toString(), HttpStatus.OK);
+                return new ResponseEntity<>(response.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
             }
             logger.info("{}| Voting success with trans id: {}", logId, responseBody.getTransId());
 
             response = DataUtil.buildResponse(ErrorConstant.SUCCESS, request.getRequestId(), responseBody.toString());
-            response.setData(new JsonObject(responseBody.toString()));
             return new ResponseEntity<>(response.toString(), HttpStatus.OK);
         } catch (Exception ex) {
             logger.error("{}| Request voting catch exception: ", logId, ex);
             response = DataUtil.buildResponse(ErrorConstant.BAD_FORMAT_DATA, request.getRequestId(),null);
-            ResponseEntity<String> responseEntity = new ResponseEntity<>(
+            return new ResponseEntity<>(
                     response.toString(),
-                    HttpStatus.OK);
-            return responseEntity;
+                    HttpStatus.BAD_REQUEST);
         }
     }
 
-    @PostMapping(value = "/get-transactions", produces = "application/json;charset=utf8")
-    public ResponseEntity<String> getTransaction(@RequestBody TransactionRequest request) {
+    @GetMapping(value = {"/get-transactions", "/get-transactions/{walletId}"}, produces = "application/json;charset=utf8")
+    public ResponseEntity<String> getTransaction(@PathVariable(required = false) String walletId) {
         String logId = DataUtil.createRequestId();
-        logger.info("{}| Request data: {}", logId, PARSER.toJson(request));
+        logger.info("{}| Request data: walletId - {}", logId, walletId);
         BaseResponse response = new BaseResponse();
         try {
-            response.setRequestId(request.getRequestId());
-            if (!request.isValidData()) {
-                logger.warn("{}| Validate request get transactions: Fail!", logId);
-                response = DataUtil.buildResponse(ErrorConstant.BAD_FORMAT_DATA, request.getRequestId(), null);
-                return new ResponseEntity<>(response.toString(), HttpStatus.OK);
-            }
-            logger.info("{}| Valid data request get transactions success!", logId);
+            response.setRequestId(logId);
 
-            List<TransactionResponse> responseData = transactionService.getTransactions(logId, request);
+            if (StringUtils.isBlank(walletId)) {
+                WalletDTO walletDTO = getWallet(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+                walletId = walletDTO.getWalletId();
+            } else if (walletId.equals("all")) {
+                walletId = "";
+            } else {
+                WalletDTO walletDTO = walletService.findByWalletId(walletId);
+                if (walletDTO == null) {
+                    logger.warn("{}| Wallet id - {} not existed", logId, walletId);
+                    response = DataUtil.buildResponse(ErrorConstant.BAD_FORMAT_DATA, logId, null);
+                    return new ResponseEntity<>(response.toString(), HttpStatus.BAD_REQUEST);
+                }
+            }
+            List<TransactionResponse> responseData = transactionService.getTransactions(logId, walletId);
             JsonObject responseBody = new JsonObject().put("transactions", responseData);
             if (responseData == null) {
                 logger.warn("{}| Get transactions fail: {}", logId, responseBody.toString());
-                response = DataUtil.buildResponse(ErrorConstant.SYSTEM_ERROR, request.getRequestId(), responseBody.toString());
-                return new ResponseEntity<>(response.toString(), HttpStatus.OK);
+                response = DataUtil.buildResponse(ErrorConstant.SYSTEM_ERROR, logId, responseBody.toString());
+                return new ResponseEntity<>(response.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
             }
 
             if (responseData.size() <= 0) {
                 logger.warn("{}| Transaction not found!", logId);
-                response = DataUtil.buildResponse(ErrorConstant.NOT_EXISTED, request.getRequestId(), responseBody.toString());
+                response = DataUtil.buildResponse(ErrorConstant.NOT_EXISTED, logId, responseBody.toString());
                 return new ResponseEntity<>(response.toString(), HttpStatus.OK);
             }
             logger.info("{}| Get transactions success with size: {}", logId, responseData.size());
 
-            response = DataUtil.buildResponse(ErrorConstant.SUCCESS, request.getRequestId(), responseBody.toString());
-            response.setData(new JsonObject(responseBody.toString()));
+            response = DataUtil.buildResponse(ErrorConstant.SUCCESS, logId, responseBody.toString());
             return new ResponseEntity<>(response.toString(), HttpStatus.OK);
         } catch (Exception ex) {
             logger.error("{}| Request Get transactions catch exception: ", logId, ex);
-            response = DataUtil.buildResponse(ErrorConstant.BAD_FORMAT_DATA, request.getRequestId(),null);
-            ResponseEntity<String> responseEntity = new ResponseEntity<>(
+            response = DataUtil.buildResponse(ErrorConstant.BAD_FORMAT_DATA, logId,null);
+            return new ResponseEntity<>(
                     response.toString(),
-                    HttpStatus.OK);
-            return responseEntity;
+                    HttpStatus.BAD_REQUEST);
         }
+    }
+
+    private WalletDTO getWallet(Object principal) {
+        return walletService.findByEmail(((UserDetails) principal).getUsername());
     }
 }

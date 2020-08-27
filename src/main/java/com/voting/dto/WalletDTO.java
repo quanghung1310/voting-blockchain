@@ -28,6 +28,6 @@ public class WalletDTO {
     private String firstName;
     private String lastName;
     private int sex;
-    private int type;
+    private int type; //1: user, 2: elector
     private int maxPerDate;
 }

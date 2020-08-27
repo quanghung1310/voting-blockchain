@@ -40,6 +40,7 @@ public class WalletProcess {
         walletDTO.setActive(1);
         walletDTO.setCreateDate(new Timestamp(System.currentTimeMillis()));
         walletDTO.setLastModify(new Timestamp(System.currentTimeMillis()));
+        walletDTO.setMaxPerDate(1);
         return walletDTO;
     }
 }

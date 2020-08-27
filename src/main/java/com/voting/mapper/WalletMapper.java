@@ -34,7 +34,7 @@ public final class WalletMapper {
                 .build();
     }
 
-    public static ElectorResponse toModelElector(WalletDTO walletDTO) {
+    public static ElectorResponse toModelElector(WalletDTO walletDTO, String contentId) {
         if (walletDTO == null) {
             return ElectorResponse.builder().build();
         }
@@ -47,6 +47,7 @@ public final class WalletMapper {
                 .email(walletDTO.getEmail())
                 .type(walletDTO.getType())
                 .active(walletDTO.getActive())
+                .contentId(contentId)
                 .build();
     }
 }

@@ -1,5 +1,6 @@
 package com.voting.process;
 
+import com.voting.constants.ActionConstant;
 import com.voting.dto.TransactionDTO;
 import com.voting.dto.VoteContentDTO;
 import com.voting.dto.WalletDTO;
@@ -34,17 +35,17 @@ public class TransactionProcess {
         return true;
     }
 
-    public static TransactionDTO buildTransaction(String logId, String transId, String sendPublicKey, String recieptPublicKey, VotingRequest request, String signature) {
+    public static TransactionDTO buildTransaction(String logId, String transId, String senderWalletId, String receiverWalletId, VotingRequest request, String signature) {
        try {
            return TransactionDTO.builder()
-                   .active(1)
+                   .status(ActionConstant.INIT.getValue())
                    .contentId(request.getContentId())
                    .createDate(new Timestamp(request.getRequestTime()))
                    .currency(request.getCurrency())
                    .description(request.getDescription())
                    .lastModify(new Timestamp(request.getRequestTime()))
-                   .receipt(recieptPublicKey)
-                   .sender(sendPublicKey)
+                   .receiver(receiverWalletId)
+                   .sender(senderWalletId)
                    .signature(signature)
                    .transId(transId)
                    .value(request.getValue())

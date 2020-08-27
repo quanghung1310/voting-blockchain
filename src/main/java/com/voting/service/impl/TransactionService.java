@@ -1,5 +1,6 @@
 package com.voting.service.impl;
 
+import com.voting.constants.ActionConstant;
 import com.voting.dto.TransactionDTO;
 import com.voting.dto.WalletDTO;
 import com.voting.mapper.TransactionMapper;
@@ -18,6 +19,10 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -26,37 +31,46 @@ import java.util.List;
 public class TransactionService implements ITransactionService {
     private static final Logger logger = LogManager.getLogger(TransactionService.class);
 
-    @Autowired
     public ITransactionRepository transactionRepository;
-    @Autowired
     public IWalletRepository walletRepository;
 
+    @Autowired
+    public TransactionService(ITransactionRepository transactionRepository
+                            , IWalletRepository walletRepository) {
+        this.transactionRepository = transactionRepository;
+        this.walletRepository = walletRepository;
+    }
+
     @Override
-    public VotingResponse voting(String logId, VotingRequest request) {
-        String senderPublicKey = request.getSender();
-        String reciepientPublicKey = request.getReciepient();
+    public VotingResponse voting(String logId, VotingRequest request, WalletDTO sendWallet) {
+        String senderWalletId = sendWallet.getWalletId();
+        String receiverWalletId = request.getReceiverWallet();
         VotingResponse response = new VotingResponse();
         try {
             //Step 1: Validate sender
-            WalletDTO sendWallet = walletRepository.findAllByPublicKeyAndActive(senderPublicKey, 1);
-            int voted = transactionRepository.countBySender(sendWallet.getPublicKey());
+            List<Integer> status = new ArrayList<>();
+            status.add(ActionConstant.INIT.getValue());
+            status.add(ActionConstant.CONFIRM.getValue());
+            status.add(ActionConstant.COMPLETED.getValue());
+
+            int voted = transactionRepository.countBySenderAndReceiverAndCreateDateAfterAndStatusIn(senderWalletId, receiverWalletId, Timestamp.valueOf(LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT)), status);
             if(!TransactionProcess.isValidateSender(logId, sendWallet, request, voted)) {
                 logger.warn("{}| Sender wallet can't voting", logId);
                 return response;
             }
             logger.info("{}| Validate sender wallet success!", logId);
 
-            //Step 2: Validate receipt
-            WalletDTO recipWallet =  walletRepository.findAllByPublicKeyAndActiveAndType(reciepientPublicKey, 1, 1);
-            if (recipWallet == null) {
-                logger.warn("{}| Receipt wallet is not existed!", logId);
+            //Step 2: Validate receiver
+            WalletDTO receiverWallet =  walletRepository.findFirstByWalletIdAndActive(request.getReceiverWallet(), 1);
+            if (receiverWallet == null) {
+                logger.warn("{}| Receiver wallet is not existed!", logId);
                 return response;
             }
-            logger.info("{}| Receipt wallet is existed with wallet id", recipWallet.getWalletId());
+            logger.info("{}| Receiver wallet is existed with wallet id - {}", logId, receiverWallet.getWalletId());
 
             //Step 3: Genera signature
             String senderPrivateKey = sendWallet.getPrivateKey();
-            String data = senderPublicKey + reciepientPublicKey + request.getValue();
+            String data = sendWallet.getWalletId() + receiverWalletId + request.getValue() + request.getContentId();
             String signature = Base64.getEncoder().encodeToString(DataUtil.applyRSASig(senderPrivateKey, data));
 
             if (signature == null) {
@@ -65,9 +79,9 @@ public class TransactionService implements ITransactionService {
             }
             logger.info("{}| Apply RSA signature success: {}", logId, signature);
 
-            //Step 4: Upsert db
+            //Step 4: Insert transaction
             String transId = "TRANS_" + System.currentTimeMillis();
-            TransactionDTO transaction = TransactionProcess.buildTransaction(logId, transId, senderPublicKey, reciepientPublicKey, request, signature);
+            TransactionDTO transaction = TransactionProcess.buildTransaction(logId, transId, senderWalletId, receiverWalletId, request, signature);
             if (transaction == null) {
                 return response;
             }
@@ -92,19 +106,16 @@ public class TransactionService implements ITransactionService {
     }
 
     @Override
-    public List<TransactionResponse> getTransactions(String logId, TransactionRequest request) {
+    public List<TransactionResponse> getTransactions(String logId, String walletId) {
         List<TransactionResponse> responses = new ArrayList<>();
-        List<TransactionDTO> transactions = new ArrayList<>();
+        List<TransactionDTO> transactions;
         try {
-            String walletId = request.getWalletId();
-
             //Get all transaction of 1 wallet
             if (StringUtils.isNotBlank(walletId)) {
                 transactions = transactionRepository
-                        .findAllBySenderAndActive(
-                                walletRepository.findAllByWalletId(walletId).getPublicKey(), 1);
+                        .findAllBySenderOrReceiver(walletId, walletId);
             } else {
-                transactions = transactionRepository.findAllByActive(1);
+                transactions = transactionRepository.findAllByStatus(1);
             }
 
             if(transactions.size() <= 0) {
@@ -112,7 +123,7 @@ public class TransactionService implements ITransactionService {
                 return responses;
             }
 
-            transactions.forEach(transaction -> responses.add(TransactionMapper.toModelTransaction(transaction, walletId)));
+            transactions.forEach(transaction -> responses.add(TransactionMapper.toModelTransaction(transaction)));
             return responses;
         } catch (Exception e) {
             logger.error("{}| Get transactions catch exception: ", logId, e);
