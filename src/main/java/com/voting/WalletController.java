@@ -95,7 +95,7 @@ public class WalletController {
             response = DataUtil.buildResponse(ErrorConstant.BAD_FORMAT_DATA, request.getRequestId(),null);
             return new ResponseEntity<>(
                     response.toString(),
-                    HttpStatus.OK);
+                    HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -111,7 +111,7 @@ public class WalletController {
         }
         return new ResponseEntity<>(new JsonObject()
                 .put("bearerToken", jwtUtil.generateToken(authRequest.getEmail()))
-                .toString(), HttpStatus.OK);
+                .toString(), HttpStatus.BAD_REQUEST);
     }
 
 

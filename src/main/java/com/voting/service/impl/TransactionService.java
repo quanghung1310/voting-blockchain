@@ -106,17 +106,14 @@ public class TransactionService implements ITransactionService {
     }
 
     @Override
-    public List<TransactionResponse> getTransactions(String logId, TransactionRequest request) {
+    public List<TransactionResponse> getTransactions(String logId, String walletId) {
         List<TransactionResponse> responses = new ArrayList<>();
-        List<TransactionDTO> transactions = new ArrayList<>();
+        List<TransactionDTO> transactions;
         try {
-            String walletId = request.getWalletId();
-
             //Get all transaction of 1 wallet
             if (StringUtils.isNotBlank(walletId)) {
                 transactions = transactionRepository
-                        .findAllBySenderAndStatus(
-                                walletRepository.findAllByWalletId(walletId).getPublicKey(), 1);
+                        .findAllBySenderOrReceiver(walletId, walletId);
             } else {
                 transactions = transactionRepository.findAllByStatus(1);
             }
@@ -126,7 +123,7 @@ public class TransactionService implements ITransactionService {
                 return responses;
             }
 
-            transactions.forEach(transaction -> responses.add(TransactionMapper.toModelTransaction(transaction, walletId)));
+            transactions.forEach(transaction -> responses.add(TransactionMapper.toModelTransaction(transaction)));
             return responses;
         } catch (Exception e) {
             logger.error("{}| Get transactions catch exception: ", logId, e);

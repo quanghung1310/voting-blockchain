@@ -15,7 +15,7 @@ public interface ITransactionRepository extends CrudRepository<TransactionDTO, L
 
     TransactionDTO findFirstByTransId(String transId);
 
-    List<TransactionDTO> findAllBySenderAndStatus(String sender, int active);
+    List<TransactionDTO> findAllBySenderOrReceiver(String sender, String receiver);
 
     List<TransactionDTO> findAllByStatus(int active);
 

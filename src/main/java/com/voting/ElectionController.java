@@ -73,7 +73,7 @@ public class ElectionController {
             response = DataUtil.buildResponse(ErrorConstant.BAD_FORMAT_DATA, request.getRequestId(),null);
             return new ResponseEntity<>(
                     response.toString(),
-                    HttpStatus.OK);
+                    HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -112,7 +112,7 @@ public class ElectionController {
             response = DataUtil.buildResponse(ErrorConstant.BAD_FORMAT_DATA, logId,null);
             return new ResponseEntity<>(
                     response.toString(),
-                    HttpStatus.OK);
+                    HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -149,7 +149,7 @@ public class ElectionController {
             response = DataUtil.buildResponse(ErrorConstant.BAD_FORMAT_DATA, logId,null);
             return new ResponseEntity<>(
                     response.toString(),
-                    HttpStatus.OK);
+                    HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -202,7 +202,7 @@ public class ElectionController {
             response = DataUtil.buildResponse(ErrorConstant.BAD_FORMAT_DATA, request.getRequestId(), null);
             return new ResponseEntity<>(
                     response.toString(),
-                    HttpStatus.OK);
+                    HttpStatus.BAD_REQUEST);
         }
     }
 

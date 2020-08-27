@@ -14,21 +14,34 @@ import java.sql.Timestamp;
 public class TransactionDTO {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
-    private Long id;
+    private long id;
+
     private String transId;
+
     @Column(length = 2048)
     private String sender;
+
     @Column(length = 2048)
     private String receiver;
-    private Integer value;
+
+    private int value;
+
     private String currency;
+
     private Timestamp createDate;
+
     @Column(length = 2048)
     private String signature;
+
     @Column(length = 2048)
     private String description;
+
     private Timestamp lastModify;
-    private Integer status;
+
+    private int status;
+
+
     private String contentId;
+
     private Integer isMine;
 }

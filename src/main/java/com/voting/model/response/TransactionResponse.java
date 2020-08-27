@@ -12,7 +12,6 @@ import java.sql.Timestamp;
 @Builder
 public class TransactionResponse {
     private Long id;
-    private String walletId;
     private String transId;
     private Boolean isMine;
     private String from;
@@ -20,6 +19,9 @@ public class TransactionResponse {
     private Integer value;
     private String currency;
     private Timestamp createDate;
+    private String signature;
+    private String description;
+    private String contentId;
 
     @Override
     public String toString() {

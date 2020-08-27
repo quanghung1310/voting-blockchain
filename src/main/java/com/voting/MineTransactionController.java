@@ -65,7 +65,7 @@ public class MineTransactionController {
             response = DataUtil.buildResponse(ErrorConstant.BAD_FORMAT_DATA, request.getRequestId(),null);
             return new ResponseEntity<>(
                     response.toString(),
-                    HttpStatus.OK);
+                    HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -105,7 +105,7 @@ public class MineTransactionController {
             response = DataUtil.buildResponse(ErrorConstant.BAD_FORMAT_DATA, request.getRequestId(),null);
             return new ResponseEntity<>(
                     response.toString(),
-                    HttpStatus.OK);
+                    HttpStatus.BAD_REQUEST);
         }
     }
 
