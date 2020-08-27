@@ -111,7 +111,7 @@ public class WalletController {
         }
         return new ResponseEntity<>(new JsonObject()
                 .put("bearerToken", jwtUtil.generateToken(authRequest.getEmail()))
-                .toString(), HttpStatus.BAD_REQUEST);
+                .toString(), HttpStatus.OK);
     }
 
 
