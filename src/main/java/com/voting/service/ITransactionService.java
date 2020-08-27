@@ -1,5 +1,6 @@
 package com.voting.service;
 
+import com.voting.dto.WalletDTO;
 import com.voting.model.request.TransactionRequest;
 import com.voting.model.request.VotingRequest;
 import com.voting.model.response.TransactionResponse;
@@ -9,7 +10,7 @@ import java.util.List;
 
 public interface ITransactionService {
 
-    VotingResponse voting(String logId, VotingRequest request);
+    VotingResponse voting(String logId, VotingRequest request, WalletDTO senderDTO);
 
     List<TransactionResponse> getTransactions(String logId, TransactionRequest request);
 }

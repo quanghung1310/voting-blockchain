@@ -13,16 +13,14 @@ import java.sql.Timestamp;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name="vote_content")
-public class VoteContentDTO {
+@Entity(name="block_chain")
+public class BlockChainDTO {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     private Long id;
-    private String content;
+    private Long blockId;
     private Timestamp createDate;
-    private Timestamp startDate;
-    private Timestamp endDate;
-    private String description;
-    private String contentId;
+    private Integer isActive;
+    private Long parentId;
     private String walletId;
 }

@@ -5,19 +5,19 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
+import java.sql.Timestamp;
+
 @Setter
+@Getter
 @Builder
-public class ElectorResponse {
-    private String walletId;
-    private String walletAddress;
-    private String email;
-    private String firstName;
-    private String lastName;
-    private int sex;
-    private int type;
-    private int active;
-    private String contentId;
+public class BlockResponse {
+    private Long id;
+    private String blockId;
+    private String transId;
+    private String miner;
+    private Integer value;
+    private String currency;
+    private Timestamp createDate;
 
     @Override
     public String toString() {

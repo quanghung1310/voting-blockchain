@@ -10,7 +10,9 @@ import sun.misc.BASE64Encoder;
 
 import java.security.*;
 import java.security.spec.EncodedKeySpec;
+import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
@@ -102,4 +104,55 @@ public class DataUtil {
             return null;
         }
     }
+
+    public static boolean verifySignatureBase64(String signature, String toBeSign, String publicKey) {
+        try {
+            PublicKey pubk;
+            byte[] publicKeyBytes = Base64.getDecoder().decode(publicKey);
+            EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(publicKeyBytes);
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            pubk = keyFactory.generatePublic(publicKeySpec);
+            Signature sign = Signature.getInstance("SHA1withRSA");
+            byte[] ssignature = Base64.getDecoder().decode(signature);
+            sign.initVerify(pubk);
+            sign.update(toBeSign.getBytes());
+            return sign.verify(ssignature);
+        } catch (NoSuchAlgorithmException e) {
+            //logger.info("VERIFY DATA - NoSuchAlgorithmException");
+            //logger.error("NoSuchAlgorithmException, " + e.getMessage());
+        } catch (InvalidKeyException e) {
+            //logger.info("VERIFY DATA - InvalidKeyException");
+            //logger.error("InvalidKeyException, " + e.getMessage());
+        } catch (SignatureException e) {
+            //logger.info("VERIFY DATA - SignatureException");
+            //logger.error("SignatureException, " + e.getMessage());
+        } catch (InvalidKeySpecException e) {
+            //logger.info("VERIFY DATA - InvalidKeySpecException");
+            //logger.error("InvalidKeySpecException, " + e.getMessage());
+        }
+        return false;
+    }
+
+    public static String calculateHash(String previousHash, long currentTime, long nonce, String transId, int index) {
+        return applySha256(previousHash + currentTime + nonce + transId + index);
+    }
+
+    //Encrypt SHA256
+    public static String applySha256(String input){
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(input.getBytes("UTF-8"));
+            StringBuffer hexString = new StringBuffer(); // This will contain hash as hexidecimal
+            for (int i = 0; i < hash.length; i++) {
+                String hex = Integer.toHexString(0xff & hash[i]);
+                if(hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        }
+        catch(Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

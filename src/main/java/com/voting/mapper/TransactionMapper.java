@@ -14,7 +14,7 @@ public final class TransactionMapper {
                 .currency(dto.getCurrency())
                 .from(dto.getSender())
                 .isMine(dto.getIsMine() == 1)
-                .to(dto.getReceipt())
+                .to(dto.getReceiver())
                 .transId(dto.getTransId())
                 .value(dto.getValue())
                 .walletId(walletId)
