@@ -81,19 +81,20 @@ public class TransactionService implements ITransactionService {
 
             //Step 4: Insert transaction
             String transId = "TRANS_" + System.currentTimeMillis();
-            TransactionDTO transaction = TransactionProcess.buildTransaction(logId, transId, senderWalletId, receiverWalletId, request, signature);
+            int totalWallet = walletRepository.countByActive(1);
+            TransactionDTO transaction = TransactionProcess.buildTransaction(logId, transId, senderWalletId, receiverWalletId, request, signature, totalWallet);
             if (transaction == null) {
                 return response;
             }
             logger.info("{}| Save new transaction with transId: {}", logId, transId);
             transactionRepository.save(transaction);
 
-            Long id = transactionRepository.findByTransId(transId).getId();
-            if (id == null) {
+            TransactionDTO newTrans = transactionRepository.findByTransId(transId);
+            if (newTrans == null) {
                 logger.warn("{}| Save transaction - {} fail!", logId, transId);
                 return response;
             }
-            logger.info("{}| Save transaction - {} success!", logId, transId);
+            logger.info("{}| Save transaction - {} success!", logId, newTrans.getId());
 
             //Step 5: Build response
             response.setTransId(transId);

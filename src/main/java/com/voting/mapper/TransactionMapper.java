@@ -13,7 +13,7 @@ public final class TransactionMapper {
                 .createDate(dto.getCreateDate())
                 .currency(dto.getCurrency())
                 .from(dto.getSender())
-                .isMine(dto.getIsMine() != null && dto.getIsMine() > 0)
+                .isMine(dto.getMined() != null && dto.getMined() > 0)
                 .to(dto.getReceiver())
                 .transId(dto.getTransId())
                 .value(dto.getValue())

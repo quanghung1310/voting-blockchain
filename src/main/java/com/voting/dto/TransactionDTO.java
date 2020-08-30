@@ -40,8 +40,9 @@ public class TransactionDTO {
 
     private int status;
 
-
     private String contentId;
 
-    private Integer isMine;
+    private Integer mined;
+
+    private int totalWallet;
 }

@@ -35,7 +35,7 @@ public class TransactionProcess {
         return true;
     }
 
-    public static TransactionDTO buildTransaction(String logId, String transId, String senderWalletId, String receiverWalletId, VotingRequest request, String signature) {
+    public static TransactionDTO buildTransaction(String logId, String transId, String senderWalletId, String receiverWalletId, VotingRequest request, String signature, int totalWallet) {
        try {
            return TransactionDTO.builder()
                    .status(ActionConstant.INIT.getValue())
@@ -49,6 +49,8 @@ public class TransactionProcess {
                    .signature(signature)
                    .transId(transId)
                    .value(request.getValue())
+                   .totalWallet(totalWallet)
+                   .mined(0)
                    .build();
        } catch (Exception exception) {
            logger.error("{}| Build transaction catch exception: ", logId);

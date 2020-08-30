@@ -2,11 +2,12 @@ package com.voting;
 
 import com.google.gson.Gson;
 import com.voting.constants.ErrorConstant;
+import com.voting.dto.WalletDTO;
 import com.voting.model.request.BlockRequest;
 import com.voting.model.request.MineTransactionRequest;
-import com.voting.model.request.TransactionRequest;
 import com.voting.model.response.*;
 import com.voting.service.IBlockService;
+import com.voting.service.IWalletService;
 import com.voting.util.DataUtil;
 import io.vertx.core.json.JsonObject;
 import org.apache.logging.log4j.LogManager;
@@ -14,6 +15,8 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,9 +30,12 @@ public class MineTransactionController {
 
     public IBlockService blockService;
 
+    private IWalletService walletService;
+
     @Autowired
-    public MineTransactionController(IBlockService blockService) {
+    public MineTransactionController(IBlockService blockService, IWalletService walletService) {
         this.blockService = blockService;
+        this.walletService = walletService;
     }
 
     @PostMapping(value = "/mine-transaction", produces = "application/json;charset=utf8")
@@ -46,7 +52,9 @@ public class MineTransactionController {
             }
             logger.info("{}| Valid data request mine transaction success!", logId);
 
-            JsonObject responseData = blockService.mineTransaction(logId, request);
+            WalletDTO walletDTO = getWallet(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+
+            JsonObject responseData = blockService.mineTransaction(logId, walletDTO, request);
             int resultCode = responseData.getInteger("resultCode", -1);
             MineTransactionResponse transactionResponse = PARSER.fromJson(responseData.getString("transactionResponse", MineTransactionResponse.builder().build().toString()), MineTransactionResponse.class);
             if (resultCode != 0) {
@@ -109,4 +117,7 @@ public class MineTransactionController {
         }
     }
 
+    WalletDTO getWallet(Object principal) {
+        return walletService.findByEmail(((UserDetails) principal).getUsername());
+    }
 }
