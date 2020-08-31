@@ -67,7 +67,7 @@ public class WalletController {
             if (!request.isValidData()) {
                 logger.warn("{}| Validate request register data: Fail!", logId);
                 response = DataUtil.buildResponse(ErrorConstant.BAD_FORMAT_DATA, request.getRequestId(), null);
-                return new ResponseEntity<>(response.toString(), HttpStatus.OK);
+                return new ResponseEntity<>(response.toString(), HttpStatus.BAD_REQUEST);
             }
             logger.info("{}| Valid data request register success!", logId);
 
@@ -75,7 +75,7 @@ public class WalletController {
             if (responseBody == null) {
                 logger.warn("{}| Register fail", logId);
                 response = DataUtil.buildResponse(ErrorConstant.SYSTEM_ERROR, request.getRequestId(), null);
-                return new ResponseEntity<>(response.toString(), HttpStatus.OK);
+                return new ResponseEntity<>(response.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
             }
             logger.info("{}| Register success with wallet id: {}", logId, responseBody.getWalletId());
 
