@@ -124,14 +124,15 @@ public class ElectionController {
         logger.info("{}| Request data: contentId - {}", logId, contentId);
         BaseResponse response;
         try {
-            List<ElectorResponse> electors = walletService.getElector(logId, contentId);
+            WalletDTO walletDTO = getWallet(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+
+            List<ElectorResponse> electors = walletService.getElector(logId, contentId, walletDTO.getWalletId());
             JsonObject responseData = new JsonObject().put("electors", electors);
             if (electors == null) {
                 logger.warn("{}| Get elector fail!!", logId);
                 response = DataUtil.buildResponse(ErrorConstant.SYSTEM_ERROR, logId, responseData.toString());
                 logger.info("{}| Response to client: {}", logId, response);
                 return new ResponseEntity<>(response.toString(), HttpStatus.BAD_REQUEST);
-
             }
 
             if (electors.size() <= 0) {

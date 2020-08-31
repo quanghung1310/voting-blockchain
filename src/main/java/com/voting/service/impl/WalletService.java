@@ -64,7 +64,7 @@ public class WalletService implements IWalletService {
     }
 
     @Override
-    public List<ElectorResponse> getElector(String logId, String contentId) {
+    public List<ElectorResponse> getElector(String logId, String contentId, String walletId) {
         List<ElectorResponse> response = new ArrayList<>();
         try {
 
@@ -76,13 +76,13 @@ public class WalletService implements IWalletService {
                if(electorDTOS.size() > 0) {
                    for (ElectorDTO electorDTO : electorDTOS) {
                        WalletDTO walletDTO = walletRepository.findFirstByWalletIdAndActive(electorDTO.getWalletId(), 1);
-                       response.add(WalletMapper.toModelElector(walletDTO, electorDTO.getContentId()));
+                       response.add(WalletMapper.toModelElector(walletDTO, electorDTO.getContentId(), electorDTO.getWalletId().equals(walletId)));
                    }
                }
            } else {
                wallets = walletRepository.findAllByContentId(contentId);
                logger.info("{}| Found elector by content - {} success with size: {}", logId, contentId, wallets.size());
-               wallets.forEach(wallet -> response.add(WalletMapper.toModelElector(wallet, contentId)));
+               wallets.forEach(wallet -> response.add(WalletMapper.toModelElector(wallet, contentId, wallet.getWalletId().equals(walletId))));
            }
 
            if (wallets.size() <= 0) {
@@ -103,7 +103,7 @@ public class WalletService implements IWalletService {
             return null;
         }
         ElectorDTO elector = electorRepository.save(electorDTO);
-        return WalletMapper.toModelElector(dto, elector.getContentId());
+        return WalletMapper.toModelElector(dto, elector.getContentId(), true);
     }
 
     @Override

@@ -11,7 +11,7 @@ import java.util.List;
 public interface IWalletService {
     RegisterResponse register(String logId, RegisterRequest request);
 
-    List<ElectorResponse> getElector(String logId, String contentId);
+    List<ElectorResponse> getElector(String logId, String contentId, String walletId);
 
     ElectorResponse saveElector(String logId, WalletDTO dto, ElectorDTO electorDTO);
 

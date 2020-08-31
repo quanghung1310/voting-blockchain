@@ -18,6 +18,7 @@ public class ElectorResponse {
     private int type;
     private int active;
     private String contentId;
+    private boolean isRegister;
 
     @Override
     public String toString() {
