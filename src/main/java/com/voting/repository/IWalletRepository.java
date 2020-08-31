@@ -33,4 +33,6 @@ public interface IWalletRepository extends CrudRepository<WalletDTO, Long> {
 
     WalletDTO findFirstByWalletIdAndActive(String walletId, int active);
 
+    WalletDTO findFirstByWalletId(String walletId);
+
 }

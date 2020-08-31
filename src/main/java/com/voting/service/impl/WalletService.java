@@ -119,6 +119,6 @@ public class WalletService implements IWalletService {
 
     @Override
     public WalletResponse findWalletByWalletId(String walletId) {
-        return null;
+        return WalletMapper.toModelWallet(walletRepository.findFirstByWalletId(walletId));
     }
 }
