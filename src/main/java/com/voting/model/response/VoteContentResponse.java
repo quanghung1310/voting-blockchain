@@ -15,6 +15,7 @@ public class VoteContentResponse {
     private String startDate;
     private String endDate;
     private String creator;
+    private boolean isRegister;
 
     @Override
     public String toString() {

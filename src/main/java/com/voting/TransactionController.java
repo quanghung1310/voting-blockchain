@@ -15,6 +15,7 @@ import io.vertx.core.json.JsonObject;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,9 +29,10 @@ public class TransactionController {
     private final Logger logger = LogManager.getLogger(TransactionController.class);
     private static final Gson PARSER = new Gson();
 
-    public ITransactionService transactionService;
+    private ITransactionService transactionService;
     private IWalletService walletService;
 
+    @Autowired
     public TransactionController(ITransactionService transactionService
             , IWalletService walletService) {
         this.transactionService = transactionService;

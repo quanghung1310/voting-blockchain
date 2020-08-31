@@ -6,7 +6,7 @@ import com.voting.model.response.VoteContentResponse;
 import com.voting.util.DataUtil;
 
 public final class VoteContentMapper {
-    public static VoteContentResponse toModelVoteContent(VoteContentDTO dto) {
+    public static VoteContentResponse toModelVoteContent(VoteContentDTO dto, boolean isRegister) {
         if (dto == null) {
             return VoteContentResponse.builder().build();
         }
@@ -17,6 +17,7 @@ public final class VoteContentMapper {
                 .endDate(DataUtil.convertTimeWithFormat(dto.getEndDate().getTime(), StringConstant.FORMAT_ddMMyyyyTHHmmss))
                 .startDate(DataUtil.convertTimeWithFormat(dto.getStartDate().getTime(), StringConstant.FORMAT_ddMMyyyyTHHmmss))
                 .creator(dto.getWalletId())
+                .isRegister(isRegister)
                 .build();
     }
 }
