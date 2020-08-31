@@ -3,7 +3,6 @@ package com.voting;
 import com.google.gson.Gson;
 import com.voting.constants.ErrorConstant;
 import com.voting.dto.WalletDTO;
-import com.voting.model.request.TransactionRequest;
 import com.voting.model.request.VotingRequest;
 import com.voting.model.response.BaseResponse;
 import com.voting.model.response.TransactionResponse;

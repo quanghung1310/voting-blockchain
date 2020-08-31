@@ -3,7 +3,6 @@ package com.voting.mapper;
 import com.voting.dto.BlockDTO;
 import com.voting.dto.TransactionDTO;
 import com.voting.model.response.BlockResponse;
-import com.voting.model.response.TransactionResponse;
 
 public final class BlockMapper {
     public static BlockResponse toModelBlock(BlockDTO dto, TransactionDTO transaction) {
@@ -18,6 +17,8 @@ public final class BlockMapper {
                 .miner(dto.getMinerId())
                 .transId(dto.getTransId())
                 .value(transaction.getValue())
+                .hash(dto.getHash())
+                .prevHash(dto.getPreviousHash())
                 .build();
     }
 }

@@ -18,6 +18,8 @@ public class BlockResponse {
     private Integer value;
     private String currency;
     private Timestamp createDate;
+    private String hash;
+    private String prevHash;
 
     @Override
     public String toString() {

@@ -2,23 +2,18 @@ package com.voting.service.impl;
 
 import com.voting.constants.ActionConstant;
 import com.voting.constants.ErrorConstant;
-import com.voting.dto.BlockChainDTO;
 import com.voting.dto.BlockDTO;
 import com.voting.dto.TransactionDTO;
 import com.voting.dto.WalletDTO;
 import com.voting.mapper.BlockMapper;
-import com.voting.mapper.TransactionMapper;
-import com.voting.model.request.BlockRequest;
 import com.voting.model.request.MineTransactionRequest;
 import com.voting.model.response.BlockResponse;
-import com.voting.model.response.TransactionResponse;
 import com.voting.process.MineProcess;
 import com.voting.repository.IBlockChainRepository;
 import com.voting.repository.IBlockRepository;
 import com.voting.repository.ITransactionRepository;
 import com.voting.repository.IWalletRepository;
 import com.voting.service.IBlockService;
-import com.voting.util.DataUtil;
 import io.vertx.core.json.JsonObject;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -161,12 +156,10 @@ public class BlockService implements IBlockService {
     }
 
     @Override
-    public List<BlockResponse> getBlocks(String logId, BlockRequest request) {
+    public List<BlockResponse> getBlocks(String logId, String walletId) {
         List<BlockResponse> responses = new ArrayList<>();
-        List<BlockDTO> blockDTOS = new ArrayList<>();
+        List<BlockDTO> blockDTOS;
         try {
-            String walletId = request.getWalletId();
-
             //Get all transaction of 1 wallet
             if (StringUtils.isNotBlank(walletId)) {
                 blockDTOS = blockRepository.findAllByMinerIdOrderByIdDesc(walletId);
