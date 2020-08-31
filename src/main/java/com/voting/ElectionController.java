@@ -86,7 +86,9 @@ public class ElectionController {
         try {
             response.setRequestId(logId);
 
-            List<VoteContentResponse> contents = voteContentService.getContent(logId, startDate, endDate);
+            WalletDTO walletDTO = getWallet(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+
+            List<VoteContentResponse> contents = voteContentService.getContent(logId, startDate, endDate, walletDTO.getWalletId());
             JsonObject responseData = new JsonObject().put("contents", contents);
             if (contents == null) {
                 logger.warn("{}| Get vote content fail!!", logId);
