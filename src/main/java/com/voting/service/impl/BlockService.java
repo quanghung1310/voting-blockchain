@@ -81,13 +81,13 @@ public class BlockService implements IBlockService {
                 return response.put(RESULT_CODE, ErrorConstant.CHECK_SIGNATURE_FAIL);
             }
             //Step 2: Validate block
-            //Step 2.1: trans can mine? [was mined success == 100%]
+            //Step 2.1: trans can mine? [was mined success >= 50%]
             if (transaction.getStatus() == ActionConstant.COMPLETED.getValue()) {
                 logger.warn("{}| Transaction was add to block chain", logId);
                 return response.put(RESULT_CODE, ErrorConstant.TRANS_PAID);
             }
             //Step 2.2: wallet can mine ? [walletId is sender, walletId was mined]
-            BlockDTO blockDTO = blockRepository.findAllByMinerIdAndTransId(mineWallet.getWalletId(), transId);
+            BlockDTO blockDTO = blockRepository.findAllByMinerIdAndTransIdAndIsActive(mineWallet.getWalletId(), transId, 1);
             if (blockDTO != null || mineWallet.getWalletId().equals(transaction.getSender())) {
                 logger.warn("{}|Wallet - {} is sender or mined", logId, mineWallet.getWalletId());
                 return response.put(RESULT_CODE, ErrorConstant.CANT_MINE);
@@ -95,7 +95,7 @@ public class BlockService implements IBlockService {
 
             //Step 2.3: Validate hash
 //            List<BlockChainDTO> blockChains = blockChainRepository.findByOrderByIdDesc();
-            List<BlockDTO> blockDTOS = blockRepository.findAllByTransIdOrderById(transId);
+            List<BlockDTO> blockDTOS = blockRepository.findAllByIsActiveOrderByIdAsc(1);
             String prevHash;
             int index = blockDTOS.size();
             long currentTime = System.currentTimeMillis();
@@ -134,7 +134,7 @@ public class BlockService implements IBlockService {
 
             transaction.setMined(totalMined);
             transaction.setLastModify(new Timestamp(currentTime));
-            if (totalMined >= totalWallet/2) {
+            if (totalMined > totalWallet/2) {
                 try {
                     transaction.setStatus(ActionConstant.COMPLETED.getValue());
                 } catch (Exception e) {

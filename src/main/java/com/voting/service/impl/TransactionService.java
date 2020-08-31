@@ -4,7 +4,6 @@ import com.voting.constants.ActionConstant;
 import com.voting.dto.TransactionDTO;
 import com.voting.dto.WalletDTO;
 import com.voting.mapper.TransactionMapper;
-import com.voting.model.request.TransactionRequest;
 import com.voting.model.request.VotingRequest;
 import com.voting.model.response.TransactionResponse;
 import com.voting.model.response.VotingResponse;
@@ -53,7 +52,7 @@ public class TransactionService implements ITransactionService {
             status.add(ActionConstant.CONFIRM.getValue());
             status.add(ActionConstant.COMPLETED.getValue());
 
-            int voted = transactionRepository.countBySenderAndReceiverAndCreateDateAfterAndStatusIn(senderWalletId, receiverWalletId, Timestamp.valueOf(LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT)), status);
+            int voted = transactionRepository.countBySenderAndReceiverAndContentIdAndCreateDateAfterAndStatusIn(senderWalletId, receiverWalletId, request.getContentId(), Timestamp.valueOf(LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT)), status);
             if(!TransactionProcess.isValidateSender(logId, sendWallet, request, voted)) {
                 logger.warn("{}| Sender wallet can't voting", logId);
                 return response;

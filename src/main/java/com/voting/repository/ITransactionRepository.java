@@ -9,7 +9,7 @@ import java.sql.Timestamp;
 import java.util.List;
 
 public interface ITransactionRepository extends CrudRepository<TransactionDTO, Long> {
-    Integer countBySenderAndReceiverAndCreateDateAfterAndStatusIn(String sender, String receiver, Timestamp createDate, List<Integer> status);
+    Integer countBySenderAndReceiverAndContentIdAndCreateDateAfterAndStatusIn(String sender, String receiver, String contentId, Timestamp createDate, List<Integer> status);
 
     TransactionDTO findByTransId(String transId);
 

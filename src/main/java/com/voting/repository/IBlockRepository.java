@@ -6,7 +6,7 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.List;
 
 public interface IBlockRepository extends CrudRepository<BlockDTO, Long> {
-    BlockDTO findAllByMinerIdAndTransId(String minerId, String transId);
+    BlockDTO findAllByMinerIdAndTransIdAndIsActive(String minerId, String transId, int isActive);
 
     List<BlockDTO> findByIdIs(Long id);
 
@@ -16,6 +16,6 @@ public interface IBlockRepository extends CrudRepository<BlockDTO, Long> {
 
     List<BlockDTO> findAll();
 
-    List<BlockDTO> findAllByTransIdOrderById(String transId);
+    List<BlockDTO> findAllByIsActiveOrderByIdAsc(int active);
 
 }

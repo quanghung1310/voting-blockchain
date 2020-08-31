@@ -40,7 +40,7 @@ public class MineProcess {
             blockDTO.setCreateDate(new Timestamp(currentTime));
             blockDTO.setLastModify(new Timestamp(currentTime));
             blockDTO.setParentId(0);
-            blockDTO.setIsActive(0);
+            blockDTO.setIsActive(1);
             blockDTO.setStatusBlock(1);
 
             //Mine
@@ -83,7 +83,7 @@ public class MineProcess {
             BlockDTO blockDTO = blockDTOS.get(0);
             String currentHash = DataUtil.calculateHash(blockDTO.getPreviousHash(), Long.parseLong(blockDTO.getTimeHash()),
                     blockDTO.getNonce(), blockDTO.getTransId(), blockDTO.getTotal());
-            if (StringUtils.isNotBlank(blockDTO.getPreviousHash()) || !blockDTO.getHash().equals(currentHash)) {
+            if (StringUtils.isNotBlank(blockDTO.getPreviousHash()) || !(blockDTO.getHash().equals(currentHash))) {
                 logger.warn("{}|Current hash - {} not compare Block hash - {}", logId, currentHash, blockDTO.getHash());
                 return false;
             }

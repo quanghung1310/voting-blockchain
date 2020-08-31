@@ -27,7 +27,7 @@ public class BlockDTO {
     private int difficulty;
     private String minerId;
     private Integer parentId;
-    private Integer isActive;
+    private int isActive;
     private Integer statusBlock;
     private Timestamp lastModify;
     private Timestamp createDate;

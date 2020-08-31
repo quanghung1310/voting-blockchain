@@ -25,8 +25,7 @@ public class TransactionProcess {
         // Step 2: Valid max per date
         int maxPerDate = sendWallet.getMaxPerDate();
         int value = request.getValue();
-        if (maxPerDate < value
-            || voted >= maxPerDate
+        if (voted >= maxPerDate
             || maxPerDate - voted < value) {
             logger.warn("{}| Sender wallet is cash limit: max per date - {} < value - {} or balance - {} < voted - {}", logId, maxPerDate, value, maxPerDate, voted);
             return false;
