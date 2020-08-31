@@ -109,7 +109,7 @@ public class BlockService implements IBlockService {
                     logger.warn("{}|Validate blocks fail!", logId);
                     return response.put(RESULT_CODE, ErrorConstant.SYSTEM_ERROR);
                 }
-                prevHash = blockDTOS.get(index - 1).getPreviousHash();
+                prevHash = blockDTOS.get(index - 1).getHash();
             }
             logger.info("{}| Validate Previous hash success!", logId);
 

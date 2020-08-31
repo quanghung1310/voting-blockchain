@@ -13,7 +13,7 @@ import java.sql.Timestamp;
 public class TransactionResponse {
     private Long id;
     private String transId;
-    private Boolean isMine;
+    private Boolean isMined;
     private String from;
     private String to;
     private Integer value;

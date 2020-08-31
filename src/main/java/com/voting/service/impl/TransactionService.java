@@ -115,7 +115,7 @@ public class TransactionService implements ITransactionService {
                 transactions = transactionRepository
                         .findAllBySenderOrReceiver(walletId, walletId);
             } else {
-                transactions = transactionRepository.findAllByStatus(1);
+                transactions = (List<TransactionDTO>) transactionRepository.findAll();
             }
 
             if(transactions.size() <= 0) {
