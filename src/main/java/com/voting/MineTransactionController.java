@@ -28,7 +28,7 @@ public class MineTransactionController {
     private final Logger logger = LogManager.getLogger(MineTransactionController.class);
     private static final Gson PARSER = new Gson();
 
-    public IBlockService blockService;
+    private IBlockService blockService;
 
     private IWalletService walletService;
 

@@ -5,6 +5,7 @@ import com.voting.dto.WalletDTO;
 import com.voting.model.request.RegisterRequest;
 import com.voting.model.response.ElectorResponse;
 import com.voting.model.response.RegisterResponse;
+import com.voting.model.response.WalletResponse;
 
 import java.util.List;
 
@@ -18,4 +19,6 @@ public interface IWalletService {
     WalletDTO findByEmail(String email);
 
     WalletDTO findByWalletId(String walletId);
+
+    WalletResponse findWalletByWalletId(String walletId);
 }
