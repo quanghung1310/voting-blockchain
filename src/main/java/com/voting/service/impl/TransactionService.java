@@ -1,6 +1,7 @@
 package com.voting.service.impl;
 
 import com.voting.constants.ActionConstant;
+import com.voting.dto.BlockDTO;
 import com.voting.dto.TransactionDTO;
 import com.voting.dto.WalletDTO;
 import com.voting.mapper.TransactionMapper;
@@ -8,6 +9,7 @@ import com.voting.model.request.VotingRequest;
 import com.voting.model.response.TransactionResponse;
 import com.voting.model.response.VotingResponse;
 import com.voting.process.TransactionProcess;
+import com.voting.repository.IBlockRepository;
 import com.voting.repository.ITransactionRepository;
 import com.voting.repository.IWalletRepository;
 import com.voting.service.ITransactionService;
@@ -30,14 +32,16 @@ import java.util.List;
 public class TransactionService implements ITransactionService {
     private static final Logger logger = LogManager.getLogger(TransactionService.class);
 
-    public ITransactionRepository transactionRepository;
-    public IWalletRepository walletRepository;
+    private ITransactionRepository transactionRepository;
+    private IWalletRepository walletRepository;
+    private IBlockRepository blockRepository;
 
     @Autowired
     public TransactionService(ITransactionRepository transactionRepository
-                            , IWalletRepository walletRepository) {
+            , IWalletRepository walletRepository, IBlockRepository blockRepository) {
         this.transactionRepository = transactionRepository;
         this.walletRepository = walletRepository;
+        this.blockRepository = blockRepository;
     }
 
     @Override
@@ -106,7 +110,7 @@ public class TransactionService implements ITransactionService {
     }
 
     @Override
-    public List<TransactionResponse> getTransactions(String logId, String walletId) {
+    public List<TransactionResponse> getTransactions(String logId, String walletId, String rootWalletId) {
         List<TransactionResponse> responses = new ArrayList<>();
         List<TransactionDTO> transactions;
         try {
@@ -123,7 +127,14 @@ public class TransactionService implements ITransactionService {
                 return responses;
             }
 
-            transactions.forEach(transaction -> responses.add(TransactionMapper.toModelTransaction(transaction)));
+            transactions.forEach(transaction -> {
+                boolean canMine = true;
+                BlockDTO blockDTO = blockRepository.findAllByMinerIdAndTransIdAndIsActive(rootWalletId, transaction.getTransId(), 1);
+                if (blockDTO != null || rootWalletId.equals(transaction.getSender())) {
+                    canMine = false;
+                }
+                responses.add(TransactionMapper.toModelTransaction(transaction, canMine));
+            });
             return responses;
         } catch (Exception e) {
             logger.error("{}| Get transactions catch exception: ", logId, e);

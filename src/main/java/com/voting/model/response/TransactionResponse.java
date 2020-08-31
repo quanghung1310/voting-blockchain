@@ -22,6 +22,7 @@ public class TransactionResponse {
     private String signature;
     private String description;
     private String contentId;
+    private boolean canMine;
 
     @Override
     public String toString() {

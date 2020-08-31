@@ -5,7 +5,7 @@ import com.voting.dto.TransactionDTO;
 import com.voting.model.response.TransactionResponse;
 
 public final class TransactionMapper {
-    public static TransactionResponse toModelTransaction(TransactionDTO dto) {
+    public static TransactionResponse toModelTransaction(TransactionDTO dto, boolean canMine) {
         if (dto == null) {
             return null;
         }
@@ -21,6 +21,7 @@ public final class TransactionMapper {
                 .contentId(dto.getContentId())
                 .signature(dto.getSignature())
                 .description(dto.getDescription())
+                .canMine(canMine)
                 .build();
     }
 }

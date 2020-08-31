@@ -88,9 +88,9 @@ public class TransactionController {
         try {
             response.setRequestId(logId);
 
+            WalletDTO rootWallet = getWallet(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
             if (StringUtils.isBlank(walletId)) {
-                WalletDTO walletDTO = getWallet(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-                walletId = walletDTO.getWalletId();
+                walletId = rootWallet.getWalletId();
             } else if (walletId.equals("all")) {
                 walletId = "";
             } else {
@@ -101,7 +101,7 @@ public class TransactionController {
                     return new ResponseEntity<>(response.toString(), HttpStatus.BAD_REQUEST);
                 }
             }
-            List<TransactionResponse> responseData = transactionService.getTransactions(logId, walletId);
+            List<TransactionResponse> responseData = transactionService.getTransactions(logId, walletId, rootWallet.getWalletId());
             JsonObject responseBody = new JsonObject().put("transactions", responseData);
             if (responseData == null) {
                 logger.warn("{}| Get transactions fail: {}", logId, responseBody.toString());

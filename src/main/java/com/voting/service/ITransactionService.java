@@ -11,5 +11,5 @@ public interface ITransactionService {
 
     VotingResponse voting(String logId, VotingRequest request, WalletDTO senderDTO);
 
-    List<TransactionResponse> getTransactions(String logId, String walletId);
+    List<TransactionResponse> getTransactions(String logId, String walletId, String rootWalletId);
 }
