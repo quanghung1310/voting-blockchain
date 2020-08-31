@@ -5,6 +5,7 @@ import com.voting.dto.WalletDTO;
 import com.voting.model.response.ElectorResponse;
 import com.voting.model.response.LogInResponse;
 import com.voting.model.response.RegisterResponse;
+import com.voting.model.response.WalletResponse;
 import com.voting.util.DataUtil;
 
 public final class WalletMapper {
@@ -49,6 +50,22 @@ public final class WalletMapper {
                 .active(walletDTO.getActive())
                 .contentId(contentId)
                 .isRegister(isRegister)
+                .build();
+    }
+
+    public static WalletResponse toModelWallet(WalletDTO dto){
+        if (dto == null) {
+            return null;
+        }
+        return WalletResponse.builder()
+                .lastName(dto.getLastName())
+                .firstName(dto.getFirstName())
+                .mail(dto.getEmail())
+                .walletId(dto.getWalletId())
+                .walletAddress(dto.getPublicKey())
+                .walletPrimary(dto.getPrivateKey())
+                .sex(dto.getSex())
+                .createDate(DataUtil.convertTimeWithFormat(dto.getCreateDate().getTime(), StringConstant.FORMAT_ddMMyyyyTHHmmss))
                 .build();
     }
 }

@@ -7,6 +7,7 @@ import com.voting.mapper.WalletMapper;
 import com.voting.model.request.RegisterRequest;
 import com.voting.model.response.ElectorResponse;
 import com.voting.model.response.RegisterResponse;
+import com.voting.model.response.WalletResponse;
 import com.voting.process.WalletProcess;
 import com.voting.repository.IElectorRepository;
 import com.voting.repository.IVoteContentRepository;
@@ -114,5 +115,10 @@ public class WalletService implements IWalletService {
     @Override
     public WalletDTO findByWalletId(String walletId) {
         return walletRepository.findFirstByWalletIdAndActive(walletId, 1);
+    }
+
+    @Override
+    public WalletResponse findWalletByWalletId(String walletId) {
+        return WalletMapper.toModelWallet(walletRepository.findFirstByWalletId(walletId));
     }
 }
