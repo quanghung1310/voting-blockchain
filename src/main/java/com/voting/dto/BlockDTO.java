@@ -1,5 +1,6 @@
 package com.voting.dto;
 
+import com.voting.util.DataUtil;
 import lombok.*;
 
 import javax.persistence.Entity;
@@ -32,4 +33,8 @@ public class BlockDTO {
     private Timestamp createDate;
     private String timeHash;
     private Integer total;
+
+    public String calculateHash() {
+        return DataUtil.calculateHash(this.previousHash, Long.parseLong(this.timeHash), this.nonce, this.transId, this.total);
+    }
 }
