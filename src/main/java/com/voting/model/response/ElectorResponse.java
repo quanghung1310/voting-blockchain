@@ -19,6 +19,7 @@ public class ElectorResponse {
     private int active;
     private String contentId;
     private boolean isRegister;
+    private int voted;
 
     @Override
     public String toString() {
