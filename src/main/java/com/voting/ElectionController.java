@@ -73,7 +73,7 @@ public class ElectionController {
             response = DataUtil.buildResponse(ErrorConstant.BAD_FORMAT_DATA, request.getRequestId(),null);
             return new ResponseEntity<>(
                     response.toString(),
-                    HttpStatus.OK);
+                    HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -86,7 +86,9 @@ public class ElectionController {
         try {
             response.setRequestId(logId);
 
-            List<VoteContentResponse> contents = voteContentService.getContent(logId, startDate, endDate);
+            WalletDTO walletDTO = getWallet(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+
+            List<VoteContentResponse> contents = voteContentService.getContent(logId, startDate, endDate, walletDTO.getWalletId());
             JsonObject responseData = new JsonObject().put("contents", contents);
             if (contents == null) {
                 logger.warn("{}| Get vote content fail!!", logId);
@@ -112,7 +114,7 @@ public class ElectionController {
             response = DataUtil.buildResponse(ErrorConstant.BAD_FORMAT_DATA, logId,null);
             return new ResponseEntity<>(
                     response.toString(),
-                    HttpStatus.OK);
+                    HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -122,14 +124,15 @@ public class ElectionController {
         logger.info("{}| Request data: contentId - {}", logId, contentId);
         BaseResponse response;
         try {
-            List<ElectorResponse> electors = walletService.getElector(logId, contentId);
+            WalletDTO walletDTO = getWallet(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+
+            List<ElectorResponse> electors = walletService.getElector(logId, contentId, walletDTO.getWalletId());
             JsonObject responseData = new JsonObject().put("electors", electors);
             if (electors == null) {
                 logger.warn("{}| Get elector fail!!", logId);
                 response = DataUtil.buildResponse(ErrorConstant.SYSTEM_ERROR, logId, responseData.toString());
                 logger.info("{}| Response to client: {}", logId, response);
                 return new ResponseEntity<>(response.toString(), HttpStatus.BAD_REQUEST);
-
             }
 
             if (electors.size() <= 0) {
@@ -149,7 +152,7 @@ public class ElectionController {
             response = DataUtil.buildResponse(ErrorConstant.BAD_FORMAT_DATA, logId,null);
             return new ResponseEntity<>(
                     response.toString(),
-                    HttpStatus.OK);
+                    HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -202,7 +205,7 @@ public class ElectionController {
             response = DataUtil.buildResponse(ErrorConstant.BAD_FORMAT_DATA, request.getRequestId(), null);
             return new ResponseEntity<>(
                     response.toString(),
-                    HttpStatus.OK);
+                    HttpStatus.BAD_REQUEST);
         }
     }
 

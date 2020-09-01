@@ -25,8 +25,7 @@ public class TransactionProcess {
         // Step 2: Valid max per date
         int maxPerDate = sendWallet.getMaxPerDate();
         int value = request.getValue();
-        if (maxPerDate < value
-            || voted >= maxPerDate
+        if (voted >= maxPerDate
             || maxPerDate - voted < value) {
             logger.warn("{}| Sender wallet is cash limit: max per date - {} < value - {} or balance - {} < voted - {}", logId, maxPerDate, value, maxPerDate, voted);
             return false;
@@ -35,7 +34,7 @@ public class TransactionProcess {
         return true;
     }
 
-    public static TransactionDTO buildTransaction(String logId, String transId, String senderWalletId, String receiverWalletId, VotingRequest request, String signature) {
+    public static TransactionDTO buildTransaction(String logId, String transId, String senderWalletId, String receiverWalletId, VotingRequest request, String signature, int totalWallet) {
        try {
            return TransactionDTO.builder()
                    .status(ActionConstant.INIT.getValue())
@@ -49,6 +48,8 @@ public class TransactionProcess {
                    .signature(signature)
                    .transId(transId)
                    .value(request.getValue())
+                   .totalWallet(totalWallet)
+                   .mined(0)
                    .build();
        } catch (Exception exception) {
            logger.error("{}| Build transaction catch exception: ", logId);

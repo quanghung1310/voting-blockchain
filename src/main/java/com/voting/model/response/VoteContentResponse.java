@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @Builder
@@ -15,6 +17,8 @@ public class VoteContentResponse {
     private String startDate;
     private String endDate;
     private String creator;
+    private boolean isRegister;
+    List<ElectorResponse> electors;
 
     @Override
     public String toString() {

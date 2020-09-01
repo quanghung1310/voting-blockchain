@@ -1,5 +1,6 @@
 package com.voting.service.impl;
 
+import com.voting.constants.ActionConstant;
 import com.voting.dto.ElectorDTO;
 import com.voting.dto.VoteContentDTO;
 import com.voting.dto.WalletDTO;
@@ -7,8 +8,10 @@ import com.voting.mapper.WalletMapper;
 import com.voting.model.request.RegisterRequest;
 import com.voting.model.response.ElectorResponse;
 import com.voting.model.response.RegisterResponse;
+import com.voting.model.response.WalletResponse;
 import com.voting.process.WalletProcess;
 import com.voting.repository.IElectorRepository;
+import com.voting.repository.ITransactionRepository;
 import com.voting.repository.IVoteContentRepository;
 import com.voting.repository.IWalletRepository;
 import com.voting.service.IWalletService;
@@ -29,14 +32,16 @@ public class WalletService implements IWalletService {
     private IWalletRepository walletRepository;
     private IElectorRepository electorRepository;
     private IVoteContentRepository voteContentRepository;
+    private ITransactionRepository transactionRepository;
 
     @Autowired
     public WalletService(IWalletRepository walletRepository
             , IElectorRepository electorRepository
-            , IVoteContentRepository voteContentRepository) {
+            , IVoteContentRepository voteContentRepository, ITransactionRepository transactionRepository) {
         this.walletRepository = walletRepository;
         this.electorRepository = electorRepository;
         this.voteContentRepository = voteContentRepository;
+        this.transactionRepository = transactionRepository;
     }
 
     @Override
@@ -64,7 +69,7 @@ public class WalletService implements IWalletService {
     }
 
     @Override
-    public List<ElectorResponse> getElector(String logId, String contentId) {
+    public List<ElectorResponse> getElector(String logId, String contentId, String walletId) {
         List<ElectorResponse> response = new ArrayList<>();
         try {
 
@@ -76,13 +81,15 @@ public class WalletService implements IWalletService {
                if(electorDTOS.size() > 0) {
                    for (ElectorDTO electorDTO : electorDTOS) {
                        WalletDTO walletDTO = walletRepository.findFirstByWalletIdAndActive(electorDTO.getWalletId(), 1);
-                       response.add(WalletMapper.toModelElector(walletDTO, electorDTO.getContentId()));
+                       int voted = transactionRepository.countAllByContentIdAndStatus(contentId, ActionConstant.COMPLETED.getValue());
+                       response.add(WalletMapper.toModelElector(walletDTO, electorDTO.getContentId(), electorDTO.getWalletId().equals(walletId), voted));
                    }
                }
            } else {
                wallets = walletRepository.findAllByContentId(contentId);
                logger.info("{}| Found elector by content - {} success with size: {}", logId, contentId, wallets.size());
-               wallets.forEach(wallet -> response.add(WalletMapper.toModelElector(wallet, contentId)));
+               int voted = transactionRepository.countAllByContentIdAndStatus(contentId, ActionConstant.COMPLETED.getValue());
+               wallets.forEach(wallet -> response.add(WalletMapper.toModelElector(wallet, contentId, wallet.getWalletId().equals(walletId), voted)));
            }
 
            if (wallets.size() <= 0) {
@@ -103,7 +110,7 @@ public class WalletService implements IWalletService {
             return null;
         }
         ElectorDTO elector = electorRepository.save(electorDTO);
-        return WalletMapper.toModelElector(dto, elector.getContentId());
+        return WalletMapper.toModelElector(dto, elector.getContentId(), true, 0);
     }
 
     @Override
@@ -114,5 +121,10 @@ public class WalletService implements IWalletService {
     @Override
     public WalletDTO findByWalletId(String walletId) {
         return walletRepository.findFirstByWalletIdAndActive(walletId, 1);
+    }
+
+    @Override
+    public WalletResponse findWalletByWalletId(String walletId) {
+        return WalletMapper.toModelWallet(walletRepository.findFirstByWalletId(walletId));
     }
 }

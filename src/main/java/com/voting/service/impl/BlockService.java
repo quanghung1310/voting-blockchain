@@ -1,15 +1,13 @@
 package com.voting.service.impl;
 
+import com.voting.constants.ActionConstant;
 import com.voting.constants.ErrorConstant;
-import com.voting.dto.BlockChainDTO;
 import com.voting.dto.BlockDTO;
 import com.voting.dto.TransactionDTO;
+import com.voting.dto.WalletDTO;
 import com.voting.mapper.BlockMapper;
-import com.voting.mapper.TransactionMapper;
-import com.voting.model.request.BlockRequest;
 import com.voting.model.request.MineTransactionRequest;
 import com.voting.model.response.BlockResponse;
-import com.voting.model.response.TransactionResponse;
 import com.voting.process.MineProcess;
 import com.voting.repository.IBlockChainRepository;
 import com.voting.repository.IBlockRepository;
@@ -34,25 +32,31 @@ public class BlockService implements IBlockService {
     private final String RESULT_CODE    = "resultCode";
     private final String TRANS_RESPONSE = "transactionResponse";
     private final int DIFFICULTY        = 5;
-    @Autowired
+
     public ITransactionRepository transactionRepository;
 
-    @Autowired
     public IBlockRepository blockRepository;
 
-    @Autowired
     public IBlockChainRepository blockChainRepository;
 
-    @Autowired
     public IWalletRepository walletRepository;
 
+    @Autowired
+    public BlockService(ITransactionRepository transactionRepository
+            , IBlockRepository blockRepository
+            , IBlockChainRepository blockChainRepository
+            , IWalletRepository walletRepository) {
+        this.transactionRepository = transactionRepository;
+        this.blockRepository = blockRepository;
+        this.blockChainRepository = blockChainRepository;
+        this.walletRepository = walletRepository;
+    }
+
     @Override
-    public JsonObject mineTransaction(String logId, MineTransactionRequest request) {
+    public JsonObject mineTransaction(String logId, WalletDTO mineWallet, MineTransactionRequest request) {
         JsonObject response = new JsonObject();
-        TransactionResponse transactionResponse = TransactionResponse.builder().build();
         try {
             String transId = request.getTransId();
-            String walletId = "";
             //Step 1: Verify signature
             TransactionDTO transaction = transactionRepository.findByTransId(transId);
             if (transaction == null) {
@@ -61,46 +65,51 @@ public class BlockService implements IBlockService {
             }
             logger.warn("{}| Transaction - {} is existed!", logId, transId);
 
-            if (!MineProcess.verifySignature(logId, transaction)) {
+            WalletDTO senderWallet = walletRepository.findFirstByWalletIdAndActive(transaction.getSender(), 1);
+            if (senderWallet == null) {
+                logger.warn("{}| Sender wallet - {} is not existed!", logId, transaction.getSender());
+                return response.put(RESULT_CODE, ErrorConstant.NOT_EXISTED);
+            }
+
+            if (!MineProcess.verifySignature(logId, transaction, senderWallet.getPublicKey())) {
                 logger.warn("{}| Verify sig - {} fail!", logId, transaction.getSignature());
                 return response.put(RESULT_CODE, ErrorConstant.CHECK_SIGNATURE_FAIL);
             }
-            //Step 2: Create block
-            BlockDTO block = new BlockDTO();
+            //Step 2: Validate block
             //Step 2.1: trans can mine? [was mined success >= 50%]
-            TransactionDTO transactionDTO = transactionRepository.findByTransId(transId);
-            if (transactionDTO.getIsMine() == 1) {
-                logger.warn("{}| Transaction was add to blockchain", logId);
+            if (transaction.getStatus() == ActionConstant.COMPLETED.getValue()) {
+                logger.warn("{}| Transaction was add to block chain", logId);
                 return response.put(RESULT_CODE, ErrorConstant.TRANS_PAID);
             }
-            //Step 2.2: wallet can mine ? [ walletId not fount, walletId is sender, walletId was mined]
-            BlockDTO blockDTO = blockRepository.findAllByMinerIdAndTransId(walletId, transId);
-            if (blockDTO != null || walletId.equals(transactionDTO.getSender())) {
-                logger.warn("{}| User can't mine", logId);
+            //Step 2.2: wallet can mine ? [walletId is sender, walletId was mined]
+            BlockDTO blockDTO = blockRepository.findAllByMinerIdAndTransIdAndIsActive(mineWallet.getWalletId(), transId, 1);
+            if (blockDTO != null || mineWallet.getWalletId().equals(transaction.getSender())) {
+                logger.warn("{}|Wallet - {} is sender or mined", logId, mineWallet.getWalletId());
                 return response.put(RESULT_CODE, ErrorConstant.CANT_MINE);
             }
-            //Step 2.3: Get prevHash
-            List<BlockChainDTO> blockchains = blockChainRepository.findByOrderByIdDesc();
-            String prevHash = "";
-            int index = 0;
+
+            //Step 2.3: Validate hash
+//            List<BlockChainDTO> blockChains = blockChainRepository.findByOrderByIdDesc();
+            List<BlockDTO> blockDTOS = blockRepository.findAllByIsActiveOrderByIdAsc(1);
+            String prevHash;
+            int index = blockDTOS.size();
             long currentTime = System.currentTimeMillis();
             long nonce = 0;
-            if (blockchains.size() <= 0) { //First block -> not valid
+
+            if (index <= 0) { //First block -> not valid
                 logger.info("{}| This is first block!", logId);
                 prevHash = "0";
             } else {
-                logger.info("{}| PrevHash is: {}", logId, prevHash);
-                index = blockchains.size();
-                BlockDTO blockDto = blockRepository.findByIdIs(blockchains.get(index - 1).getBlockId());
-                prevHash = blockDto.getHash();
-                String realPrevHash = MineProcess.mineBlock(logId, blockDto.getPreviousHash(), Long.parseLong(blockDto.getTimeHash()), blockDto.getNonce(), blockDto.getTransId(), blockDto.getDifficulty(), (int) blockDto.getTotal(), walletId).getHash();
-                if (!prevHash.equals(realPrevHash)) {
-                    logger.warn("{}| Hash in block id - {}: Invalid!", logId, blockDto.getBlockId());
-                    return response.put(RESULT_CODE, ErrorConstant.HASH_NOT_VALID);
+                if (!MineProcess.validateHash(logId, blockDTOS)) {
+                    logger.warn("{}|Validate blocks fail!", logId);
+                    return response.put(RESULT_CODE, ErrorConstant.SYSTEM_ERROR);
                 }
+                prevHash = blockDTOS.get(index - 1).getHash();
             }
+            logger.info("{}| Validate Previous hash success!", logId);
 
-            block = MineProcess.mineBlock(logId, prevHash, currentTime, nonce, transId, DIFFICULTY, index, walletId);
+            //Step 3: Mine
+            BlockDTO block = MineProcess.mineBlock(logId, prevHash, currentTime, nonce, transId, DIFFICULTY, index, mineWallet.getWalletId());
             if (StringUtils.isBlank(block.getHash())) {
                 return response.put(RESULT_CODE, ErrorConstant.SYSTEM_ERROR);
             }
@@ -113,29 +122,24 @@ public class BlockService implements IBlockService {
                 return response.put(RESULT_CODE, ErrorConstant.SYSTEM_ERROR);
             }
 
-            //Step 3: Add block to blockchain
+            //Step 4: Update transaction
             //check mined = 50% ?
-            Long totalWallet = walletRepository.countByActiveAndType(1, 0);
-            Long totalMine = blockRepository.countByTransId(transId);
+            int totalWallet = transaction.getTotalWallet();
+            int totalMined = blockRepository.countByTransId(transId);
 
-            if (totalMine >= totalWallet/2) {
+            transaction.setMined(totalMined);
+            transaction.setLastModify(new Timestamp(currentTime));
+            if (totalMined > totalWallet/2) {
                 try {
-                    Timestamp lastModify = new Timestamp(System.currentTimeMillis());
-                    int status = 1;
-                    blockChainRepository.save(BlockChainDTO.builder()
-                            .blockId(block.getId())
-                            .createDate(lastModify)
-                            .isActive(1)
-                            .walletId(walletId)
-                            .build());
-                    transactionRepository.setIsMineByTransId(status, lastModify, transId);
+                    transaction.setStatus(ActionConstant.COMPLETED.getValue());
                 } catch (Exception e) {
-                    logger.error("{}| Add block to blockchain catch exception: ", logId, e);
+                    logger.error("{}| Add block to blockChain catch exception: ", logId, e);
                     return response.put(RESULT_CODE, ErrorConstant.SYSTEM_ERROR);
                 }
             }
+            transactionRepository.save(transaction);
 
-            //Step 4: Build response
+            //Step 5: Kết thúc đau thương ở đây!
             JsonObject transObject = new JsonObject()
                     .put("blockId", block.getBlockId())
                     .put("difficulty", block.getDifficulty())
@@ -152,12 +156,10 @@ public class BlockService implements IBlockService {
     }
 
     @Override
-    public List<BlockResponse> getBlocks(String logId, BlockRequest request) {
+    public List<BlockResponse> getBlocks(String logId, String walletId) {
         List<BlockResponse> responses = new ArrayList<>();
-        List<BlockDTO> blockDTOS = new ArrayList<>();
+        List<BlockDTO> blockDTOS;
         try {
-            String walletId = request.getWalletId();
-
             //Get all transaction of 1 wallet
             if (StringUtils.isNotBlank(walletId)) {
                 blockDTOS = blockRepository.findAllByMinerIdOrderByIdDesc(walletId);

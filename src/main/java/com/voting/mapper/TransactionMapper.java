@@ -1,10 +1,11 @@
 package com.voting.mapper;
 
+import com.voting.constants.ActionConstant;
 import com.voting.dto.TransactionDTO;
 import com.voting.model.response.TransactionResponse;
 
 public final class TransactionMapper {
-    public static TransactionResponse toModelTransaction(TransactionDTO dto, String walletId) {
+    public static TransactionResponse toModelTransaction(TransactionDTO dto, boolean canMine) {
         if (dto == null) {
             return null;
         }
@@ -13,11 +14,14 @@ public final class TransactionMapper {
                 .createDate(dto.getCreateDate())
                 .currency(dto.getCurrency())
                 .from(dto.getSender())
-                .isMine(dto.getIsMine() == 1)
+                .isMined(dto.getStatus() == ActionConstant.COMPLETED.getValue())
                 .to(dto.getReceiver())
                 .transId(dto.getTransId())
                 .value(dto.getValue())
-                .walletId(walletId)
+                .contentId(dto.getContentId())
+                .signature(dto.getSignature())
+                .description(dto.getDescription())
+                .canMine(canMine)
                 .build();
     }
 }

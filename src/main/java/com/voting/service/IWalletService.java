@@ -5,17 +5,20 @@ import com.voting.dto.WalletDTO;
 import com.voting.model.request.RegisterRequest;
 import com.voting.model.response.ElectorResponse;
 import com.voting.model.response.RegisterResponse;
+import com.voting.model.response.WalletResponse;
 
 import java.util.List;
 
 public interface IWalletService {
     RegisterResponse register(String logId, RegisterRequest request);
 
-    List<ElectorResponse> getElector(String logId, String contentId);
+    List<ElectorResponse> getElector(String logId, String contentId, String walletId);
 
     ElectorResponse saveElector(String logId, WalletDTO dto, ElectorDTO electorDTO);
 
     WalletDTO findByEmail(String email);
 
     WalletDTO findByWalletId(String walletId);
+
+    WalletResponse findWalletByWalletId(String walletId);
 }

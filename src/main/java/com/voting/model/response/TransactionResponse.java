@@ -12,14 +12,17 @@ import java.sql.Timestamp;
 @Builder
 public class TransactionResponse {
     private Long id;
-    private String walletId;
     private String transId;
-    private Boolean isMine;
+    private Boolean isMined;
     private String from;
     private String to;
     private Integer value;
     private String currency;
     private Timestamp createDate;
+    private String signature;
+    private String description;
+    private String contentId;
+    private boolean canMine;
 
     @Override
     public String toString() {

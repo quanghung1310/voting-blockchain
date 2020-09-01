@@ -1,14 +1,15 @@
 package com.voting.service.impl;
 
 import com.voting.constants.ActionConstant;
+import com.voting.dto.BlockDTO;
 import com.voting.dto.TransactionDTO;
 import com.voting.dto.WalletDTO;
 import com.voting.mapper.TransactionMapper;
-import com.voting.model.request.TransactionRequest;
 import com.voting.model.request.VotingRequest;
 import com.voting.model.response.TransactionResponse;
 import com.voting.model.response.VotingResponse;
 import com.voting.process.TransactionProcess;
+import com.voting.repository.IBlockRepository;
 import com.voting.repository.ITransactionRepository;
 import com.voting.repository.IWalletRepository;
 import com.voting.service.ITransactionService;
@@ -31,14 +32,16 @@ import java.util.List;
 public class TransactionService implements ITransactionService {
     private static final Logger logger = LogManager.getLogger(TransactionService.class);
 
-    public ITransactionRepository transactionRepository;
-    public IWalletRepository walletRepository;
+    private ITransactionRepository transactionRepository;
+    private IWalletRepository walletRepository;
+    private IBlockRepository blockRepository;
 
     @Autowired
     public TransactionService(ITransactionRepository transactionRepository
-                            , IWalletRepository walletRepository) {
+            , IWalletRepository walletRepository, IBlockRepository blockRepository) {
         this.transactionRepository = transactionRepository;
         this.walletRepository = walletRepository;
+        this.blockRepository = blockRepository;
     }
 
     @Override
@@ -53,7 +56,7 @@ public class TransactionService implements ITransactionService {
             status.add(ActionConstant.CONFIRM.getValue());
             status.add(ActionConstant.COMPLETED.getValue());
 
-            int voted = transactionRepository.countBySenderAndReceiverAndCreateDateAfterAndStatusIn(senderWalletId, receiverWalletId, Timestamp.valueOf(LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT)), status);
+            int voted = transactionRepository.countBySenderAndReceiverAndContentIdAndCreateDateAfterAndStatusIn(senderWalletId, receiverWalletId, request.getContentId(), Timestamp.valueOf(LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT)), status);
             if(!TransactionProcess.isValidateSender(logId, sendWallet, request, voted)) {
                 logger.warn("{}| Sender wallet can't voting", logId);
                 return response;
@@ -81,19 +84,20 @@ public class TransactionService implements ITransactionService {
 
             //Step 4: Insert transaction
             String transId = "TRANS_" + System.currentTimeMillis();
-            TransactionDTO transaction = TransactionProcess.buildTransaction(logId, transId, senderWalletId, receiverWalletId, request, signature);
+            int totalWallet = walletRepository.countByActive(1);
+            TransactionDTO transaction = TransactionProcess.buildTransaction(logId, transId, senderWalletId, receiverWalletId, request, signature, totalWallet);
             if (transaction == null) {
                 return response;
             }
             logger.info("{}| Save new transaction with transId: {}", logId, transId);
             transactionRepository.save(transaction);
 
-            Long id = transactionRepository.findByTransId(transId).getId();
-            if (id == null) {
+            TransactionDTO newTrans = transactionRepository.findByTransId(transId);
+            if (newTrans == null) {
                 logger.warn("{}| Save transaction - {} fail!", logId, transId);
                 return response;
             }
-            logger.info("{}| Save transaction - {} success!", logId, transId);
+            logger.info("{}| Save transaction - {} success!", logId, newTrans.getId());
 
             //Step 5: Build response
             response.setTransId(transId);
@@ -106,19 +110,16 @@ public class TransactionService implements ITransactionService {
     }
 
     @Override
-    public List<TransactionResponse> getTransactions(String logId, TransactionRequest request) {
+    public List<TransactionResponse> getTransactions(String logId, String walletId, String rootWalletId) {
         List<TransactionResponse> responses = new ArrayList<>();
-        List<TransactionDTO> transactions = new ArrayList<>();
+        List<TransactionDTO> transactions;
         try {
-            String walletId = request.getWalletId();
-
             //Get all transaction of 1 wallet
             if (StringUtils.isNotBlank(walletId)) {
                 transactions = transactionRepository
-                        .findAllBySenderAndStatus(
-                                walletRepository.findAllByWalletId(walletId).getPublicKey(), 1);
+                        .findAllBySenderOrReceiver(walletId, walletId);
             } else {
-                transactions = transactionRepository.findAllByStatus(1);
+                transactions = (List<TransactionDTO>) transactionRepository.findAll();
             }
 
             if(transactions.size() <= 0) {
@@ -126,7 +127,14 @@ public class TransactionService implements ITransactionService {
                 return responses;
             }
 
-            transactions.forEach(transaction -> responses.add(TransactionMapper.toModelTransaction(transaction, walletId)));
+            transactions.forEach(transaction -> {
+                boolean canMine = true;
+                BlockDTO blockDTO = blockRepository.findAllByMinerIdAndTransIdAndIsActive(rootWalletId, transaction.getTransId(), 1);
+                if (blockDTO != null || rootWalletId.equals(transaction.getSender())) {
+                    canMine = false;
+                }
+                responses.add(TransactionMapper.toModelTransaction(transaction, canMine));
+            });
             return responses;
         } catch (Exception e) {
             logger.error("{}| Get transactions catch exception: ", logId, e);

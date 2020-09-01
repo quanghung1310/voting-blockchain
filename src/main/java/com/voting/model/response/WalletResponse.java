@@ -5,21 +5,18 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.sql.Timestamp;
-
-@Setter
 @Getter
+@Setter
 @Builder
-public class BlockResponse {
-    private Long id;
-    private String blockId;
-    private String transId;
-    private String miner;
-    private Integer value;
-    private String currency;
-    private Timestamp createDate;
-    private String hash;
-    private String prevHash;
+public class WalletResponse {
+    private String walletId;
+    private String walletAddress;
+    private String walletPrimary;
+    private String createDate;
+    private String lastName;
+    private String firstName;
+    private String mail;
+    private int sex;
 
     @Override
     public String toString() {

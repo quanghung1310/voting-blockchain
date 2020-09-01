@@ -9,13 +9,13 @@ import java.sql.Timestamp;
 import java.util.List;
 
 public interface ITransactionRepository extends CrudRepository<TransactionDTO, Long> {
-    Integer countBySenderAndReceiverAndCreateDateAfterAndStatusIn(String sender, String receiver, Timestamp createDate, List<Integer> status);
+    int countBySenderAndReceiverAndContentIdAndCreateDateAfterAndStatusIn(String sender, String receiver, String contentId, Timestamp createDate, List<Integer> status);
 
     TransactionDTO findByTransId(String transId);
 
     TransactionDTO findFirstByTransId(String transId);
 
-    List<TransactionDTO> findAllBySenderAndStatus(String sender, int active);
+    List<TransactionDTO> findAllBySenderOrReceiver(String sender, String receiver);
 
     List<TransactionDTO> findAllByStatus(int active);
 
@@ -23,4 +23,6 @@ public interface ITransactionRepository extends CrudRepository<TransactionDTO, L
     void setIsMineByTransId(@Param("status") int status,
                             @Param("lastModify") Timestamp lastModify,
                             @Param("transId") String transId);
+
+    int countAllByContentIdAndStatus(String contentId, int status);
 }
