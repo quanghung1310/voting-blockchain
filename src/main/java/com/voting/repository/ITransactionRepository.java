@@ -24,5 +24,5 @@ public interface ITransactionRepository extends CrudRepository<TransactionDTO, L
                             @Param("lastModify") Timestamp lastModify,
                             @Param("transId") String transId);
 
-    int countAllByContentIdAndStatus(String contentId, int status);
+    int countAllByContentIdAndStatusAndReceiver(String contentId, int status, String receiverWallet);
 }

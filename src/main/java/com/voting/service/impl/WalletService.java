@@ -81,15 +81,17 @@ public class WalletService implements IWalletService {
                if(electorDTOS.size() > 0) {
                    for (ElectorDTO electorDTO : electorDTOS) {
                        WalletDTO walletDTO = walletRepository.findFirstByWalletIdAndActive(electorDTO.getWalletId(), 1);
-                       int voted = transactionRepository.countAllByContentIdAndStatus(contentId, ActionConstant.COMPLETED.getValue());
+                       int voted = transactionRepository.countAllByContentIdAndStatusAndReceiver(contentId, ActionConstant.COMPLETED.getValue(), walletDTO.getWalletId());
                        response.add(WalletMapper.toModelElector(walletDTO, electorDTO.getContentId(), electorDTO.getWalletId().equals(walletId), voted));
                    }
                }
            } else {
                wallets = walletRepository.findAllByContentId(contentId);
                logger.info("{}| Found elector by content - {} success with size: {}", logId, contentId, wallets.size());
-               int voted = transactionRepository.countAllByContentIdAndStatus(contentId, ActionConstant.COMPLETED.getValue());
-               wallets.forEach(wallet -> response.add(WalletMapper.toModelElector(wallet, contentId, wallet.getWalletId().equals(walletId), voted)));
+               wallets.forEach(wallet -> {
+                   int voted = transactionRepository.countAllByContentIdAndStatusAndReceiver(contentId, ActionConstant.COMPLETED.getValue(), wallet.getWalletId());
+                   response.add(WalletMapper.toModelElector(wallet, contentId, wallet.getWalletId().equals(walletId), voted));
+               });
            }
 
            if (wallets.size() <= 0) {

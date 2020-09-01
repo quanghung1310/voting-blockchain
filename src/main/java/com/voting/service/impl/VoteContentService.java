@@ -77,7 +77,7 @@ public class VoteContentService implements IVoteContentService {
                             List<ElectorResponse> electorResponses = new ArrayList<>();
                             for (ElectorDTO elector : electorDTOS) {
                                 WalletDTO walletDTO = walletRepository.findFirstByWalletIdAndActive(elector.getWalletId(), 1);
-                                int voted = transactionRepository.countAllByContentIdAndStatus(elector.getContentId(), ActionConstant.COMPLETED.getValue());
+                                int voted = transactionRepository.countAllByContentIdAndStatusAndReceiver(elector.getContentId(), ActionConstant.COMPLETED.getValue(), elector.getWalletId());
                                 electorResponses.add(WalletMapper.toModelElector(walletDTO, elector.getContentId(), walletId.equals(elector.getWalletId()), voted));
                             }
 
@@ -93,7 +93,7 @@ public class VoteContentService implements IVoteContentService {
                             List<ElectorResponse> electorResponses = new ArrayList<>();
                             for (ElectorDTO elector : electorDTOS) {
                                 WalletDTO walletDTO = walletRepository.findFirstByWalletIdAndActive(elector.getWalletId(), 1);
-                                int voted = transactionRepository.countAllByContentIdAndStatus(elector.getContentId(), ActionConstant.COMPLETED.getValue());
+                                int voted = transactionRepository.countAllByContentIdAndStatusAndReceiver(elector.getContentId(), ActionConstant.COMPLETED.getValue(), elector.getWalletId());
                                 electorResponses.add(WalletMapper.toModelElector(walletDTO, elector.getContentId(), walletId.equals(elector.getWalletId()), voted));
                             }
 
